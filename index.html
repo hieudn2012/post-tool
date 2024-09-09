@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto login and post</title>
+  <link rel="stylesheet" href="output.css">
+</head>
+
+<body>
+  <div class="p-4">
+    <div class="grid grid-cols-3 gap-4">
+      <div>
+        <input type="text" id="folder-input" class="w-full p-2 border-2 border-gray-200 rounded-md" readonly
+          placeholder="Select folder working on">
+        <button id="select-folder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg mt-2">
+          Select
+        </button>
+      </div>
+    </div>
+    <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
+      <thead>
+        <tr>
+          <th>IP</th>
+          <th>Port</th>
+          <th>User</th>
+          <th>Account</th>
+          <th>Time post</th>
+          <th>Status</th>
+          <th>Latest post</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="accountTable">
+        <!-- Rows will be dynamically generated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Generate table rows dynamically
+    const tableBody = document.getElementById('accountTable');
+
+    function loadAccounts(accounts) {
+      // clear table
+      tableBody.innerHTML = '';
+
+      accounts.forEach(account => {
+        const row = document.createElement('tr');
+
+        // IP Column
+        const ipCell = document.createElement('td');
+        ipCell.textContent = account.ip;
+        row.appendChild(ipCell);
+
+        // Port Column
+        const portCell = document.createElement('td');
+        portCell.textContent = account.port;
+        row.appendChild(portCell);
+
+        // User Column
+        const userCell = document.createElement('td');
+        userCell.textContent = account.user;
+        row.appendChild(userCell);
+
+        // Account Column
+        const accountCell = document.createElement('td');
+        accountCell.textContent = account.account;
+        row.appendChild(accountCell);
+
+        // Time post Column
+        const timePostCell = document.createElement('td');
+        // create an input element
+        const timePostInput = document.createElement('input');
+        timePostInput.setAttribute('type', 'number');
+        timePostInput.setAttribute('placeholder', 'Time post');
+        timePostInput.setAttribute('id', `time-post-${account.id}`);
+        // set default value
+        timePostInput.setAttribute('value', '0.5');
+        timePostInput.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md');
+        timePostCell.appendChild(timePostInput);
+        row.appendChild(timePostCell);
+
+        // Status Column
+        const statusCell = document.createElement('td');
+        statusCell.textContent = 'Not logged in';
+        // add id to status cell
+        statusCell.setAttribute('id', `status-${account.id}`);
+        row.appendChild(statusCell);
+
+        // Latest post Column
+        const latestPostCell = document.createElement('td');
+        latestPostCell.setAttribute('id', `latest-post-${account.id}`);
+        row.appendChild(latestPostCell);
+
+
+        // Login Button Column
+        const loginCell = document.createElement('td');
+        const loginButton = document.createElement('button');
+        loginButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        loginButton.textContent = 'Login';
+        loginButton.addEventListener('click', () => {
+          // Trigger Puppeteer login for this account
+          window.electronAPI.login(account);
+        });
+
+        // Run Button
+        const runButton = document.createElement('button');
+        runButton.setAttribute('id', `run-${account.id}`);
+        runButton.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        runButton.textContent = 'Run';
+        runButton.addEventListener('click', () => {
+          // Trigger Puppeteer run for this account
+          const timePost = document.getElementById(`time-post-${account.id}`).value;
+          window.electronAPI.run({ ...account, timePost: Number(timePost) });
+        });
+
+        // Test Button
+        const testButton = document.createElement('button');
+        testButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        testButton.textContent = 'Test';
+        testButton.addEventListener('click', () => {
+          // Trigger Puppeteer test for this account
+          window.electronAPI.test(account);
+        });
+
+        // Stop Button
+        const stopButton = document.createElement('button');
+        stopButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        stopButton.textContent = 'Stop';
+        stopButton.addEventListener('click', () => {
+          // Trigger Puppeteer stop for this account
+          window.electronAPI.stop(account);
+        });
+
+        const actionContainer = document.createElement('div');
+        actionContainer.classList.add('flex', 'gap-2');
+        actionContainer.appendChild(testButton);
+        actionContainer.appendChild(loginButton);
+        actionContainer.appendChild(runButton);
+        loginCell.appendChild(actionContainer);
+        row.appendChild(loginCell);
+
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Listen for the result and update the DOM
+    window.electronAPI.onActionResult((account) => {
+      const statusCell = document.getElementById(`status-${account.id}`);
+      statusCell.textContent = account.status;
+
+      const runButton = document.getElementById(`run-${account.id}`);
+
+      if (account.latestPost) {
+        const latestPostCell = document.getElementById(`latest-post-${account.id}`);
+        latestPostCell.textContent = account.latestPost.date;
+      }
+
+      if (account.retry || account.isNewRound) {
+        runButton.click();
+      }
+    });
+
+    document.getElementById('select-folder').addEventListener('click', async () => {
+      const { path, accounts } = await window.electronAPI.selectFolder();
+      document.getElementById('folder-input').value = path;
+      loadAccounts(accounts);
+    });
+  </script>
+</body>
+
+</html>
