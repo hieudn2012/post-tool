@@ -112,7 +112,7 @@ function createWindow() {
   mainWindow.loadFile('index.html')
 
   // Open devtool to debug
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 }
 
 ipcMain.handle('test', async (event, account) => {
