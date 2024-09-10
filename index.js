@@ -3,41 +3,86 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('node:path')
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const { createFolder } = require('./features/create-folder');
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
 let mainWindow;
 let folderPath = '';
 
-// Create function for create folder base on folderPath, we have cookies, user-agent, history, logger.txt, user-agent.txt
-function createFolder() {
-  if (!fs.existsSync(`${folderPath}/cookies`)) {
-    fs.mkdirSync(`${folderPath}/cookies`);
+const browsers = {};
+const pages = {};
+const userAgents = {};
+
+async function launchBrowser({ account, headless }) {
+  const agentList = fs.readFileSync(`${folderPath}/user-agent.txt`, 'utf8').trim().split('\n');
+  const userAgent = agentList[Math.floor(Math.random() * agentList.length)];
+
+  const browser = await puppeteer.launch({
+    headless,
+    args: [
+      `--proxy-server=${account.ip}:${account.port}`,
+      `--user-agent=${userAgent}`
+    ]
+  });
+  browsers[account.id] = browser;
+  userAgents[account.id] = userAgent;
+  return browsers[account.id];
+}
+
+async function closeBrowser({ account }) {
+  const id = account.id;
+  if (browsers[id]) {
+    await browsers[id].close();
+    console.log(`Browser with ID ${id} closed.`);
+    delete browsers[id];
+  } else {
+    console.log(`No browser found with ID ${id}.`);
   }
-  if (!fs.existsSync(`${folderPath}/user-agent`)) {
-    fs.mkdirSync(`${folderPath}/user-agent`);
+}
+
+// Open new page
+async function openPage({ account, url }) {
+  const browser = browsers[account.id];
+  if (!browser) {
+    throw new Error(`No browser found with ID ${account.id}.`);
   }
-  if (!fs.existsSync(`${folderPath}/history`)) {
-    fs.mkdirSync(`${folderPath}/history`);
+  const page = await browser.newPage();
+  await page.authenticate({
+    username: account.user,
+    password: account.pass
+  });
+  await page.setViewport({
+    width: 1280,
+    height: 800,
+    deviceScaleFactor: 1
+  });
+  pages[`${account.id}_${url}`] = page;
+  await page.goto(url);
+  return page;
+}
+
+async function sendEvent({ event, action = "action-result", account, ...props }) {
+  await event.sender.send(action, { ...account, ...props });
+}
+
+// save cookies
+async function saveCookies({ account, event }) {
+  console.log(pages, 'pages');
+  console.log(userAgents, 'userAgents');
+  const page = pages[`${account.id}_https://www.threads.net/login/`];
+  if (!page) {
+    sendEvent({ account, status: 'No page found' });
+    throw new Error(`No page found with ID ${account.id}.`);
   }
-  if (!fs.existsSync(`${folderPath}/logger.txt`)) {
-    fs.writeFileSync(`${folderPath}/logger.txt`, '');
-  }
-  if (!fs.existsSync(`${folderPath}/user-agent.txt`)) {
-    fs.writeFileSync(`${folderPath}/user-agent.txt`, '');
-  }
-  if (!fs.existsSync(`${folderPath}/accounts.json`)) {
-    fs.writeFileSync(`${folderPath}/accounts.json`, "[]");
-  }
-  if (!fs.existsSync(`${folderPath}/images`)) {
-    fs.mkdirSync(`${folderPath}/images`);
-  }
-  if (!fs.existsSync(`${folderPath}/posts.json`)) {
-    fs.writeFileSync(`${folderPath}/posts.json`, "[]");
-  }
+  const cookies = await page.cookies();
+  fs.writeFileSync(`${folderPath}/cookies/${account.account}.json`, JSON.stringify(cookies));
+
+  fs.writeFileSync(`${folderPath}/user-agent/${account.account}.txt`, userAgents[account.id]);
+
+  await sendEvent({ event, account, status: 'Cookies saved' });
 }
 
 // check if folderPath is not empty
@@ -65,40 +110,18 @@ function createWindow() {
   mainWindow.loadFile('index.html')
 
   // Open devtool to debug
-  // win.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 }
 
 ipcMain.handle('test', async (event, account) => {
   try {
     checkFolderPath(event);
-    // get user agent from user-agent.txt random line
-    const userAgent = fs.readFileSync(`${folderPath}/user-agent.txt`, 'utf8').split('\n')[Math.floor(Math.random() * 10)];
-
-    const browser = await puppeteer.launch({
-      headless: false,
-      args: [
-        `--proxy-server=${account.ip}:${account.port}`,
-        `--user-agent=${userAgent}`,
-      ]
-    });
-    const page = await browser.newPage();
-    await page.authenticate({
-      username: account.user,
-      password: account.pass
-    });
-    await page.setViewport({
-      // random width from 800 to 1920
-      width: Math.floor(Math.random() * 1120) + 800,
-      // random height from 600 to 1080
-      height: Math.floor(Math.random() * 480) + 600,
-      deviceScaleFactor: 1
-    });
-    await page.goto('https://whatismyipaddress.com/');
-
-    // page open new tab
-    const newTab = await browser.newPage();
-    await newTab.goto('https://whatismybrower.com');
-
+    await launchBrowser({ account, headless: false });
+    await sendEvent({ event, account, status: 'Runing whatismyipaddress...' });
+    await openPage({ account, url: 'https://whatismyipaddress.com/' });
+    await sendEvent({ event, account, status: 'Runing whatsmybrowser...' });
+    await openPage({ account, url: 'https://www.whatsmybrowser.org/' });
+    await openPage({ account, url: 'https://www.threads.net/login/' });
   } catch (error) {
     console.error('Login failed:', error);
   }
@@ -360,8 +383,6 @@ ipcMain.handle('run', async (event, account) => {
     history.posted = [...posted, { id: randomPost.id, date: new Date().toISOString() }];
     fs.writeFileSync(`${folderPath}/history/${account.account}.json`, JSON.stringify(history));
 
-
-
     // tab to post button
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
@@ -382,8 +403,9 @@ ipcMain.handle('run', async (event, account) => {
 
   } catch (error) {
     // open dialog to show error
-    event.sender.send('action-result', { ...account, status: error, retry: false });
-    console.log(error, ' error');
+    await sleep(60000);
+    event.sender.send('action-result', { ...account, status: `${error} || waiting for 60$ to start new round`, retry: false });
+    event.sender.send('action-result', { ...account, status: `New round`, retry: true });
     await browser.close();
   }
 });
@@ -394,12 +416,31 @@ ipcMain.handle('select-folder', async () => {
     properties: ['openDirectory']
   });
   folderPath = result.filePaths[0] || '';
-  createFolder();
+  createFolder(folderPath);
   const accountString = fs.readFileSync(`${folderPath}/accounts.json`, 'utf8');
   return {
     path: folderPath,
     accounts: JSON.parse(accountString)
   };  // Return the selected folder path or an empty string if no folder was selected
+});
+
+// Handle stop
+ipcMain.handle('stop', async (event, account) => {
+  try {
+    await closeBrowser({ account });
+    await sendEvent({ event, account, status: 'Stopped' });
+  } catch (error) {
+    console.error('Stop failed:', error);
+  }
+});
+
+// Handle save cookies
+ipcMain.handle('save-cookies', async (event, account) => {
+  try {
+    await saveCookies({ account, event });
+  } catch (error) {
+    console.error('Save cookies failed:', error);
+  }
 });
 
 app.whenReady().then(() => {

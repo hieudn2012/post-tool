@@ -143,9 +143,20 @@
           window.electronAPI.stop(account);
         });
 
+        // Save cookies Button
+        const saveCookiesButton = document.createElement('button');
+        saveCookiesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        saveCookiesButton.textContent = 'Save cookies';
+        saveCookiesButton.addEventListener('click', () => {
+          // Trigger Puppeteer save cookies for this account
+          window.electronAPI.saveCookies(account);
+        });
+
         const actionContainer = document.createElement('div');
-        actionContainer.classList.add('flex', 'gap-2');
+        actionContainer.classList.add('flex', 'gap-2', 'flex-wrap', 'w-[200px]');
         actionContainer.appendChild(testButton);
+        actionContainer.appendChild(saveCookiesButton);
+        actionContainer.appendChild(stopButton);
         actionContainer.appendChild(setupButton);
         actionContainer.appendChild(loginButton);
         actionContainer.appendChild(runButton);

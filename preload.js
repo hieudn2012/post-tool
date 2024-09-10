@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   test: (account) => ipcRenderer.invoke('test', account),
   setup: (account) => ipcRenderer.invoke('setup', account),
   run: (account) => ipcRenderer.invoke('run', account),
+  stop: (account) => ipcRenderer.invoke('stop', account),
+  saveCookies: (account) => ipcRenderer.invoke('save-cookies', account),
   updateStatus: (account) => ipcRenderer.invoke('update-status', account),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
   selectFolder: () => ipcRenderer.invoke('select-folder'),
