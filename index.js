@@ -118,10 +118,6 @@ ipcMain.handle('test', async (event, account) => {
   try {
     checkFolderPath(event);
     await launchBrowser({ account, headless: false });
-    await sendEvent({ event, account, status: 'Runing whatismyipaddress...' });
-    await openPage({ account, url: 'https://whatismyipaddress.com/' });
-    await sendEvent({ event, account, status: 'Runing whatsmybrowser...' });
-    await openPage({ account, url: 'https://www.whatsmybrowser.org/' });
     await openPage({ account, url: 'https://www.threads.net/login/' });
   } catch (error) {
     console.error('Login failed:', error);
