@@ -443,6 +443,33 @@ ipcMain.handle('save-cookies', async (event, account) => {
   }
 });
 
+// Handle load account
+ipcMain.handle('load-account', async (event, account) => {
+  const userAgent = fs.readFileSync(`${folderPath}/user-agent/${account.account}.txt`, 'utf8');
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: [
+      `--proxy-server=${account.ip}:${account.port}`,
+      `--user-agent=${userAgent.trim()}`,
+    ]
+  });
+
+  const page = await browser.newPage();
+  await page.authenticate({
+    username: account.user,
+    password: account.pass
+  });
+  await page.setViewport({
+    width: 1440,
+    height: 860,
+    deviceScaleFactor: 1
+  });
+  const cookiesString = fs.readFileSync(`${folderPath}/cookies/${account.account}.json`, 'utf8');
+  const cookies = JSON.parse(cookiesString);
+  await page.setCookie(...cookies);
+  await page.goto('https://www.threads.net/');
+});
+
 app.whenReady().then(() => {
   createWindow()
   app.on('activate', () => {

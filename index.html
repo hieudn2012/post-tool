@@ -152,10 +152,20 @@
           window.electronAPI.saveCookies(account);
         });
 
+        // Load account Button
+        const loadAccountButton = document.createElement('button');
+        loadAccountButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        loadAccountButton.textContent = 'Load account';
+        loadAccountButton.addEventListener('click', () => {
+          // Trigger Puppeteer load account for this account
+          window.electronAPI.loadAccount(account);
+        });
+
         const actionContainer = document.createElement('div');
         actionContainer.classList.add('flex', 'gap-2', 'flex-wrap', 'w-[200px]');
         actionContainer.appendChild(testButton);
         actionContainer.appendChild(saveCookiesButton);
+        actionContainer.appendChild(loadAccountButton);
         actionContainer.appendChild(stopButton);
         actionContainer.appendChild(setupButton);
         actionContainer.appendChild(loginButton);

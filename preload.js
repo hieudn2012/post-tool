@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setup: (account) => ipcRenderer.invoke('setup', account),
   run: (account) => ipcRenderer.invoke('run', account),
   stop: (account) => ipcRenderer.invoke('stop', account),
+  loadAccount: (account) => ipcRenderer.invoke('load-account', account),
   saveCookies: (account) => ipcRenderer.invoke('save-cookies', account),
   updateStatus: (account) => ipcRenderer.invoke('update-status', account),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
