@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "run": "git pull origin develop && electron .",
     "start": "electron .",
     "build:css": "npx tailwindcss -i ./styles.css -o ./output.css && electron .",
     "electron:build-win": "electron-builder build --win --publish never",
