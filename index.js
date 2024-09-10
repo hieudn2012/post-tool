@@ -4,6 +4,8 @@ const path = require('node:path')
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const { createFolder } = require('./features/create-folder');
+const { importAccounts } = require('./features/import-accounts');
+const { importPosts } = require('./features/import-posts');
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -110,7 +112,7 @@ function createWindow() {
   mainWindow.loadFile('index.html')
 
   // Open devtool to debug
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 }
 
 ipcMain.handle('test', async (event, account) => {
@@ -468,6 +470,16 @@ ipcMain.handle('load-account', async (event, account) => {
   const cookies = JSON.parse(cookiesString);
   await page.setCookie(...cookies);
   await page.goto('https://www.threads.net/');
+});
+
+// Handle import accounts
+ipcMain.handle('import-accounts', async (event) => {
+  return await importAccounts(folderPath);
+});
+
+// Handle import posts
+ipcMain.handle('import-posts', async (event) => {
+  return await importPosts(folderPath);
 });
 
 app.whenReady().then(() => {

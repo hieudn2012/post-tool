@@ -19,6 +19,12 @@
         </button>
       </div>
     </div>
+    <div class="mt-2 flex gap-2">
+      <button id="import-accounts" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg">
+        import accounts</button>
+      <button id="import-posts" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg">
+        import posts</button>
+    </div>
     <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
       <thead>
         <tr>
@@ -198,6 +204,18 @@
       const { path, accounts } = await window.electronAPI.selectFolder();
       document.getElementById('folder-input').value = path;
       loadAccounts(accounts);
+    });
+
+    // Import accounts
+    document.getElementById('import-accounts').addEventListener('click', async () => {
+      const { accounts } = await window.electronAPI.importAccounts();
+      console.log(accounts, 'asdasasd');
+      loadAccounts(accounts);
+    });
+
+    // Import posts
+    document.getElementById('import-posts').addEventListener('click', async () => {
+      await window.electronAPI.importPosts();
     });
   </script>
 </body>

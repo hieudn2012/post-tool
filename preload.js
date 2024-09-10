@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateStatus: (account) => ipcRenderer.invoke('update-status', account),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
   selectFolder: () => ipcRenderer.invoke('select-folder'),
+  importAccounts: () => ipcRenderer.invoke('import-accounts'),
+  importPosts: () => ipcRenderer.invoke('import-posts'),
 });
 
 window.addEventListener('DOMContentLoaded', () => {
