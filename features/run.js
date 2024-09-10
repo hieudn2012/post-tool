@@ -33,7 +33,7 @@ const run = async ({ event, account, folderPath }) => {
 
   const userAgent = fs.readFileSync(`${folderPath}/user-agent/${account.account}.txt`, 'utf8');
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: [
       `--proxy-server=${account.ip}:${account.port}`,
       `--user-agent=${userAgent.trim()}`,
