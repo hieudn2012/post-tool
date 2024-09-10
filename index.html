@@ -47,7 +47,8 @@
       </tbody>
     </table>
 
-    <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5 table" id="preview-post-table">
+    <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5 table"
+      id="preview-post-table">
       <thead>
         <tr>
           <th>ID</th>
@@ -120,7 +121,7 @@
         // Login Button Column
         const loginCell = document.createElement('td');
         const loginButton = document.createElement('button');
-        loginButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        loginButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         loginButton.textContent = 'Login';
         loginButton.addEventListener('click', () => {
           // Trigger Puppeteer login for this account
@@ -130,7 +131,7 @@
         // Run Button
         const runButton = document.createElement('button');
         runButton.setAttribute('id', `run-${account.id}`);
-        runButton.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        runButton.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         runButton.textContent = 'Run';
         runButton.addEventListener('click', () => {
           // Trigger Puppeteer run for this account
@@ -140,7 +141,7 @@
 
         // Test Button
         const testButton = document.createElement('button');
-        testButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        testButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         testButton.textContent = 'Test';
         testButton.addEventListener('click', () => {
           // Trigger Puppeteer test for this account
@@ -149,7 +150,7 @@
 
         // Setup Button
         const setupButton = document.createElement('button');
-        setupButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        setupButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         setupButton.textContent = 'Setup';
         setupButton.addEventListener('click', () => {
           // Trigger Puppeteer setup for this account
@@ -158,7 +159,7 @@
 
         // Stop Button
         const stopButton = document.createElement('button');
-        stopButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        stopButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         stopButton.textContent = 'Stop';
         stopButton.addEventListener('click', () => {
           // Trigger Puppeteer stop for this account
@@ -167,7 +168,7 @@
 
         // Save cookies Button
         const saveCookiesButton = document.createElement('button');
-        saveCookiesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        saveCookiesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         saveCookiesButton.textContent = 'Save cookies';
         saveCookiesButton.addEventListener('click', () => {
           // Trigger Puppeteer save cookies for this account
@@ -176,11 +177,27 @@
 
         // Load account Button
         const loadAccountButton = document.createElement('button');
-        loadAccountButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        loadAccountButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         loadAccountButton.textContent = 'Load account';
         loadAccountButton.addEventListener('click', () => {
           // Trigger Puppeteer load account for this account
           window.electronAPI.loadAccount(account);
+        });
+
+        // Copy 2fa Button
+        const copy2faButton = document.createElement('button');
+        copy2faButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
+        copy2faButton.textContent = 'Get 2fa code';
+        copy2faButton.addEventListener('click', () => {
+          // Trigger Puppeteer copy 2fa for this account
+          fetch(`https://2fa.live/tok/${account.account2fa}`)
+            .then(response => response.json())
+            .then(data => {
+              navigator.clipboard.writeText(data.token);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
         });
 
         const actionContainer = document.createElement('div');
@@ -188,6 +205,7 @@
         actionContainer.appendChild(testButton);
         actionContainer.appendChild(saveCookiesButton);
         actionContainer.appendChild(loadAccountButton);
+        actionContainer.appendChild(copy2faButton);
         actionContainer.appendChild(stopButton);
         actionContainer.appendChild(setupButton);
         actionContainer.appendChild(loginButton);
@@ -225,7 +243,6 @@
     // Import accounts
     document.getElementById('import-accounts').addEventListener('click', async () => {
       const { accounts } = await window.electronAPI.importAccounts();
-      console.log(accounts, 'asdasasd');
       loadAccounts(accounts);
     });
 
