@@ -184,6 +184,82 @@ ipcMain.handle('login', async (event, account) => {
   }
 });
 
+// Handle settup
+ipcMain.handle('setup', async (event, account) => {
+  try {
+    const userAgent = fs.readFileSync('user-agent.txt', 'utf8').split('\n')[Math.floor(Math.random() * 10)];
+    const browser = await puppeteer.launch({
+      headless: false,
+      args: [
+        `--proxy-server=${account.ip}:${account.port}`,
+        `--user-agent=${userAgent}`,
+      ]
+    });
+    const page = await browser.newPage();
+    await page.authenticate({
+      username: account.user,
+      password: account.pass
+    });
+    await page.setViewport({
+      width: 1280,
+      height: 800,
+      deviceScaleFactor: 1
+    });
+    await page.goto('https://www.instagram.com/');
+
+    // open a new tab with url = "2fa.live"
+    const newTab = await browser.newPage();
+    await newTab.goto('https://2fa.live/');
+
+    // find textarea with id = "listToken"
+    const tokenElement = await newTab.$('textarea#listToken');
+    await tokenElement.type(account.account2fa);
+    await sleep(5000);
+
+    // find button with id = "submit"
+    const submitElement = await newTab.$('a#submit');
+    submitElement.click();
+
+    // waiting 2s
+    await sleep(3000);
+
+    // find textarea with id = "output"
+    const outputElement = await newTab.$('textarea#output');
+    const value = await newTab.evaluate(element => element.value, outputElement);
+    const code = value.split('|')[1];
+    // quit new tab
+    await newTab.close();
+
+    // find input with name = "username"
+    const userInputElement = await page.$('input[name="username"]');
+    await userInputElement.type(account.account);
+
+    // tab to password input
+    await page.keyboard.press('Tab');
+    await page.keyboard.type(account.password);
+    await page.keyboard.press('Enter');
+
+    await sleep(3000);
+
+    // find input with name = "verificationCode"
+    const codeInputElement = await page.$('input[name="verificationCode"]');
+    console.log(codeInputElement);
+    await codeInputElement.type(code);
+    await page.keyboard.press('Enter');
+
+    await sleep(15000);
+
+    // create new file json with account name
+    fs.writeFileSync(`${folderPath}/cookies/${account.account}.json`, JSON.stringify(await page.cookies()));
+
+    // save user agent by account name
+    fs.writeFileSync(`${folderPath}/user-agent/${account.account}.txt`, userAgent);
+
+  } catch (error) {
+    console.error('Login failed:', error);
+  }
+});
+
 // Handle run
 ipcMain.handle('run', async (event, account) => {
   // check if history file is exist
@@ -284,8 +360,8 @@ ipcMain.handle('run', async (event, account) => {
     history.posted = [...posted, { id: randomPost.id, date: new Date().toISOString() }];
     fs.writeFileSync(`${folderPath}/history/${account.account}.json`, JSON.stringify(history));
 
-    
-  
+
+
     // tab to post button
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');

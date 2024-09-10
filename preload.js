@@ -4,6 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
   login: (account) => ipcRenderer.invoke('login', account),
   test: (account) => ipcRenderer.invoke('test', account),
+  setup: (account) => ipcRenderer.invoke('setup', account),
   run: (account) => ipcRenderer.invoke('run', account),
   updateStatus: (account) => ipcRenderer.invoke('update-status', account),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),

@@ -125,6 +125,15 @@
           window.electronAPI.test(account);
         });
 
+        // Setup Button
+        const setupButton = document.createElement('button');
+        setupButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+        setupButton.textContent = 'Setup';
+        setupButton.addEventListener('click', () => {
+          // Trigger Puppeteer setup for this account
+          window.electronAPI.setup(account);
+        });
+
         // Stop Button
         const stopButton = document.createElement('button');
         stopButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
@@ -137,6 +146,7 @@
         const actionContainer = document.createElement('div');
         actionContainer.classList.add('flex', 'gap-2');
         actionContainer.appendChild(testButton);
+        actionContainer.appendChild(setupButton);
         actionContainer.appendChild(loginButton);
         actionContainer.appendChild(runButton);
         loginCell.appendChild(actionContainer);
