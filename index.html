@@ -32,6 +32,7 @@
     <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
       <thead>
         <tr>
+          <th>Index</th>
           <th>IP</th>
           <th>Port</th>
           <th>User</th>
@@ -71,6 +72,11 @@
 
       accounts.forEach(account => {
         const row = document.createElement('tr');
+
+        // Index Column
+        const indexCell = document.createElement('td');
+        indexCell.textContent = account.id;
+        row.appendChild(indexCell); 
 
         // IP Column
         const ipCell = document.createElement('td');
