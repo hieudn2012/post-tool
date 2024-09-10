@@ -1,8 +1,9 @@
 const fs = require('fs');
 const puppeteer = require('puppeteer');
+const { sleep } = require('./common');
 
-export const run = async (event, account) => {
-  // check if history file is exist
+// Handle run
+const run = async ({ event, account, folderPath }) => {
   if (!fs.existsSync(`${folderPath}/history/${account.account}.json`)) {
     fs.writeFileSync(`${folderPath}/history/${account.account}.json`, '{}');
   }
@@ -120,8 +121,13 @@ export const run = async (event, account) => {
 
   } catch (error) {
     // open dialog to show error
-    event.sender.send('action-result', { ...account, status: error, retry: false });
-    console.log(error, ' error');
+    event.sender.send('action-result', { ...account, status: `${error} || waiting for 60$ to start new round`, retry: false });
+    await sleep(60000);
+    event.sender.send('action-result', { ...account, status: `New round`, retry: true });
     await browser.close();
   }
+};
+
+module.exports = {
+  run,
 };
