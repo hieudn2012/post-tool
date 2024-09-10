@@ -315,7 +315,7 @@ ipcMain.handle('run', async (event, account) => {
 
   const userAgent = fs.readFileSync(`${folderPath}/user-agent/${account.account}.txt`, 'utf8');
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: [
       `--proxy-server=${account.ip}:${account.port}`,
       `--user-agent=${userAgent.trim()}`,
@@ -403,8 +403,8 @@ ipcMain.handle('run', async (event, account) => {
 
   } catch (error) {
     // open dialog to show error
-    await sleep(60000);
     event.sender.send('action-result', { ...account, status: `${error} || waiting for 60$ to start new round`, retry: false });
+    await sleep(60000);
     event.sender.send('action-result', { ...account, status: `New round`, retry: true });
     await browser.close();
   }
