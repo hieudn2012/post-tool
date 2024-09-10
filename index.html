@@ -17,6 +17,7 @@
         <button id="select-folder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg mt-2">
           Select
         </button>
+
       </div>
     </div>
     <div class="mt-2 flex gap-2">
@@ -24,6 +25,9 @@
         import accounts</button>
       <button id="import-posts" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg">
         import posts</button>
+      <button id="preview-posts"
+        class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg">Preview
+        posts</button>
     </div>
     <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
       <thead>
@@ -42,6 +46,18 @@
         <!-- Rows will be dynamically generated here -->
       </tbody>
     </table>
+
+    <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5 table" id="preview-post-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Url</th>
+        </tr>
+      </thead>
+      <tbody id="preview-post-body">
+        <!-- Rows will be dynamically generated here -->
+      </tbody>
   </div>
 
   <script>
@@ -216,6 +232,35 @@
     // Import posts
     document.getElementById('import-posts').addEventListener('click', async () => {
       await window.electronAPI.importPosts();
+    });
+
+    // Preview posts
+    document.getElementById('preview-posts').addEventListener('click', async () => {
+      const posts = await window.electronAPI.previewPosts();
+      const previewPostBody = document.getElementById('preview-post-body');
+
+      previewPostBody.innerHTML = '';
+
+      posts.forEach(post => {
+        const row = document.createElement('tr');
+
+        // ID Column
+        const idCell = document.createElement('td');
+        idCell.textContent = post.id;
+        row.appendChild(idCell);
+
+        // Title Column
+        const titleCell = document.createElement('td');
+        titleCell.textContent = post.title;
+        row.appendChild(titleCell);
+
+        // Url Column
+        const urlCell = document.createElement('td');
+        urlCell.textContent = post.url;
+        row.appendChild(urlCell);
+
+        previewPostBody.appendChild(row);
+      });
     });
   </script>
 </body>

@@ -8,6 +8,7 @@ const { importAccounts } = require('./features/import-accounts');
 const { importPosts } = require('./features/import-posts');
 const { run } = require('./features/run');
 const { sleep } = require('./features/common');
+const { previewPosts } = require('./features/preview-posts');
 
 let mainWindow;
 let folderPath = '';
@@ -103,7 +104,7 @@ function createWindow() {
     width: 1440,
     height: 860,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
     }
   })
 
@@ -356,6 +357,11 @@ ipcMain.handle('import-accounts', async (event) => {
 // Handle import posts
 ipcMain.handle('import-posts', async (event) => {
   return await importPosts(folderPath);
+});
+
+// Handle preview posts
+ipcMain.handle('preview-posts', async (event) => {
+  return previewPosts(folderPath);
 });
 
 app.whenReady().then(() => {
