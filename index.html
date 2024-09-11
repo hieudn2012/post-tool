@@ -5,6 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Auto login and post</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
   <link rel="stylesheet" href="output.css">
 </head>
 
@@ -14,31 +24,36 @@
       <div>
         <input type="text" id="folder-input" class="w-full p-2 border-2 border-gray-200 rounded-md" readonly
           placeholder="Select folder working on">
-        <button id="select-folder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg mt-2">
+        <button id="select-folder"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg mt-2">
+          <i class="fa-solid fa-database mr-2"></i>
           Select
         </button>
-
       </div>
     </div>
     <div class="mt-2 flex gap-2">
-      <button id="import-accounts" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg">
-        import accounts</button>
-      <button id="import-posts" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg">
-        import posts</button>
-      <button id="preview-posts"
-        class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg">Preview
-        posts</button>
+      <button id="import-accounts" class="bg-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg">
+        <i class="fa-solid fa-file-import mr-2"></i>
+        import accounts
+      </button>
+      <button id="import-posts" class="bg-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg">
+        <i class="fa-solid fa-file-import mr-2"></i>
+        import posts
+      </button>
+      <button id="preview-posts" class="bg-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg">
+        <i class="fa-solid fa-list mr-2"></i>
+        Preview posts</button>
     </div>
     <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
       <thead>
-        <tr>
+        <tr class="text-sm">
           <th>Index</th>
           <th>Proxy</th>
           <th>Account</th>
           <th>Time post</th>
-          <th>Status</th>
           <th>Latest post</th>
           <th>Mode</th>
+          <th>Status</th>
           <th></th>
         </tr>
       </thead>
@@ -62,7 +77,7 @@
         // Index Column
         const indexCell = document.createElement('td');
         indexCell.textContent = account.id;
-        row.appendChild(indexCell); 
+        row.appendChild(indexCell);
 
         // Proxy Column
         const ipCell = document.createElement('td');
@@ -71,12 +86,12 @@
 
         // Account Column
         const accountCell = document.createElement('td');
-        accountCell.textContent = `${account.account} || ${account.password} || ${account.account2fa}`;
+        accountCell.textContent = `${account.account} || ${account.password}`;
         row.appendChild(accountCell);
 
         // Time post Column
         const timePostCell = document.createElement('td');
-        timePostCell.classList.add('w-[200px]');
+        timePostCell.classList.add('w-[120px]');
         // create an input element
         const timePostInput = document.createElement('input');
         timePostInput.setAttribute('type', 'number');
@@ -88,21 +103,16 @@
         timePostCell.appendChild(timePostInput);
         row.appendChild(timePostCell);
 
-        // Status Column
-        const statusCell = document.createElement('td');
-        statusCell.textContent = 'Not logged in';
-        // add id to status cell
-        statusCell.setAttribute('id', `status-${account.id}`);
-        row.appendChild(statusCell);
-
         // Latest post Column
         const latestPostCell = document.createElement('td');
+        latestPostCell.classList.add('w-[120px]');
         latestPostCell.setAttribute('id', `latest-post-${account.id}`);
+        latestPostCell.textContent = '-';
         row.appendChild(latestPostCell);
 
         // Mode Column, add select element
         const modeCell = document.createElement('td');
-        modeCell.classList.add('w-[200px]');
+        modeCell.classList.add('w-[150px]');
         const modeSelect = document.createElement('select');
         modeSelect.setAttribute('id', `mode-${account.id}`);
         modeSelect.value = 'hidden';
@@ -111,8 +121,27 @@
           <option value="hidden">Hidden</option>
           <option value="brower">Browser</option>
         `;
+
+        const category = document.createElement('select');
+        category.setAttribute('id', `category-${account.id}`);
+        category.value = '';
+        category.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md', 'mt-2');
+        category.innerHTML = `
+          <option value="1">Category 1</option>
+          <option value="2">Category 2</option>
+          <option value="3">Category 3</option>
+        `;
+
         modeCell.appendChild(modeSelect);
+        modeCell.appendChild(category);
         row.appendChild(modeCell);
+
+        // Status Column
+        const statusCell = document.createElement('td');
+        statusCell.classList.add('min-w-[200px]');
+        statusCell.textContent = 'Not logged in';
+        statusCell.setAttribute('id', `status-${account.id}`);
+        row.appendChild(statusCell);
 
 
         // Login Button Column
@@ -129,12 +158,14 @@
         const runButton = document.createElement('button');
         runButton.setAttribute('id', `run-${account.id}`);
         runButton.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-        runButton.textContent = 'Run';
+        runButton.innerHTML = `
+          <i class="fa-solid fa-play"></i>
+        `;
         runButton.addEventListener('click', () => {
           // Trigger Puppeteer run for this account
           const timePost = document.getElementById(`time-post-${account.id}`).value;
           const mode = document.getElementById(`mode-${account.id}`).value;
-          window.electronAPI.run({ ...account, timePost: Number(timePost), headless: mode === 'hidden'  });
+          window.electronAPI.run({ ...account, timePost: Number(timePost), headless: mode === 'hidden' });
         });
 
         // Test Button
@@ -149,7 +180,9 @@
         // Setup Button
         const setupButton = document.createElement('button');
         setupButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-        setupButton.textContent = 'Setup';
+        setupButton.innerHTML = `
+          <i class="fa-brands fa-instagram"></i>
+        `;
         setupButton.addEventListener('click', () => {
           // Trigger Puppeteer setup for this account
           window.electronAPI.setup(account);
@@ -159,6 +192,9 @@
         const stopButton = document.createElement('button');
         stopButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         stopButton.textContent = 'Stop';
+        stopButton.innerHTML = `
+          <i class="fa-solid fa-stop"></i>
+        `;
         stopButton.addEventListener('click', () => {
           // Trigger Puppeteer stop for this account
           window.electronAPI.stop(account);
@@ -168,6 +204,9 @@
         const saveCookiesButton = document.createElement('button');
         saveCookiesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         saveCookiesButton.textContent = 'Save cookies';
+        saveCookiesButton.innerHTML = `
+          <i class="fa-solid fa-floppy-disk"></i>
+        `;
         saveCookiesButton.addEventListener('click', () => {
           // Trigger Puppeteer save cookies for this account
           window.electronAPI.saveCookies(account);
@@ -186,11 +225,15 @@
         const copy2faButton = document.createElement('button');
         copy2faButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         copy2faButton.textContent = 'Get 2fa code';
+        copy2faButton.innerHTML = `
+          <i class="fa-solid fa-qrcode"></i>
+        `;
         copy2faButton.addEventListener('click', () => {
           // Trigger Puppeteer copy 2fa for this account
           fetch(`https://2fa.live/tok/${account.account2fa}`)
             .then(response => response.json())
             .then(data => {
+              alert(`2fa code copied to clipboard: ${data.token}`);
               navigator.clipboard.writeText(data.token);
             })
             .catch(error => {
@@ -201,14 +244,16 @@
         // View Histories Button
         const viewHistoriesButton = document.createElement('button');
         viewHistoriesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-        viewHistoriesButton.textContent = 'View histories';
+        viewHistoriesButton.innerHTML = `
+          <i class="fa-solid fa-history"></i>
+        `;
         viewHistoriesButton.addEventListener('click', () => {
           // Trigger Puppeteer view histories for this account
           window.electronAPI.viewHistories(account);
         });
 
         const actionContainer = document.createElement('div');
-        actionContainer.classList.add('flex', 'gap-2', 'flex-wrap', 'w-[200px]');
+        actionContainer.classList.add('flex', 'gap-2', 'flex-wrap', 'w-[400px]');
         actionContainer.appendChild(testButton);
         actionContainer.appendChild(saveCookiesButton);
         actionContainer.appendChild(loadAccountButton);
