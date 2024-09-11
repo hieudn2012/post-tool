@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, ipcRenderer } = require('electron')
 
 const path = require('node:path')
 const puppeteer = require('puppeteer');
@@ -7,74 +7,18 @@ const { createFolder } = require('./features/create-folder');
 const { importAccounts } = require('./features/import-accounts');
 const { importPosts } = require('./features/import-posts');
 const { run } = require('./features/run');
-const { sleep } = require('./features/common');
+const { sleep, launchBrowser, openPage, checkFolderPath, getRootPath, sendEvent, closeBrowser } = require('./features/common');
 const { previewPosts } = require('./features/preview-posts/preview-posts');
 
 let mainWindow;
-
-const configs = fs.readFileSync('config.txt', 'utf8');
-let folderPath = configs.split('\n')[0];
+let folderPath = getRootPath();
 
 const browsers = {};
 const pages = {};
 const userAgents = {};
 
-async function launchBrowser({ account, headless }) {
-  const agentList = fs.readFileSync(`${folderPath}/user-agent.txt`, 'utf8').trim().split('\n');
-  const userAgent = agentList[Math.floor(Math.random() * agentList.length)];
-
-  const browser = await puppeteer.launch({
-    headless,
-    args: [
-      `--proxy-server=${account.ip}:${account.port}`,
-      `--user-agent=${userAgent}`
-    ]
-  });
-  browsers[account.id] = browser;
-  userAgents[account.id] = userAgent;
-  return browsers[account.id];
-}
-
-async function closeBrowser({ account }) {
-  const id = account.id;
-  if (browsers[id]) {
-    await browsers[id].close();
-    console.log(`Browser with ID ${id} closed.`);
-    delete browsers[id];
-  } else {
-    console.log(`No browser found with ID ${id}.`);
-  }
-}
-
-// Open new page
-async function openPage({ account, url }) {
-  const browser = browsers[account.id];
-  if (!browser) {
-    throw new Error(`No browser found with ID ${account.id}.`);
-  }
-  const page = await browser.newPage();
-  await page.authenticate({
-    username: account.user,
-    password: account.pass
-  });
-  await page.setViewport({
-    width: 1280,
-    height: 800,
-    deviceScaleFactor: 1
-  });
-  pages[`${account.id}_${url}`] = page;
-  await page.goto(url);
-  return page;
-}
-
-async function sendEvent({ event, action = "action-result", account, ...props }) {
-  await event.sender.send(action, { ...account, ...props });
-}
-
 // save cookies
 async function saveCookies({ account, event }) {
-  console.log(pages, 'pages');
-  console.log(userAgents, 'userAgents');
   const page = pages[`${account.id}_https://www.threads.net/login/`];
   if (!page) {
     sendEvent({ account, status: 'No page found' });
@@ -86,19 +30,6 @@ async function saveCookies({ account, event }) {
   fs.writeFileSync(`${folderPath}/user-agent/${account.account}.txt`, userAgents[account.id]);
 
   await sendEvent({ event, account, status: 'Cookies saved' });
-}
-
-// check if folderPath is not empty
-function checkFolderPath(event) {
-  if (folderPath === '') {
-    // show warning dialog
-    dialog.showMessageBox(mainWindow, {
-      type: 'warning',
-      message: 'Please select a folder to store data',
-      buttons: ['OK']
-    });
-    throw new Error('Folder path is empty');
-  }
 }
 
 function createWindow() {
@@ -118,9 +49,9 @@ function createWindow() {
 
 ipcMain.handle('test', async (event, account) => {
   try {
-    checkFolderPath(event);
-    await launchBrowser({ account, headless: false });
-    await openPage({ account, url: 'https://www.threads.net/login/' });
+    checkFolderPath({ window: mainWindow });
+    await launchBrowser({ account, headless: false, browsers, userAgents });
+    await openPage({ account, url: 'https://www.threads.net/login/', browsers, pages });
   } catch (error) {
     console.error('Login failed:', error);
   }
@@ -284,7 +215,15 @@ ipcMain.handle('setup', async (event, account) => {
 
 // Handle run
 ipcMain.handle('run', async (event, account) => {
-  run({ event, account, folderPath });
+  run({
+    event,
+    account,
+    folderPath,
+    browsers,
+    pages,
+    userAgents,
+    headless: !!account.headless,
+  });
 });
 
 // Handle request to open the folder selection dialog
@@ -304,7 +243,7 @@ ipcMain.handle('select-folder', async () => {
 // Handle stop
 ipcMain.handle('stop', async (event, account) => {
   try {
-    await closeBrowser({ account });
+    await closeBrowser({ account, browsers });
     await sendEvent({ event, account, status: 'Stopped' });
   } catch (error) {
     console.error('Stop failed:', error);
@@ -322,29 +261,8 @@ ipcMain.handle('save-cookies', async (event, account) => {
 
 // Handle load account
 ipcMain.handle('load-account', async (event, account) => {
-  const userAgent = fs.readFileSync(`${folderPath}/user-agent/${account.account}.txt`, 'utf8');
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: [
-      `--proxy-server=${account.ip}:${account.port}`,
-      `--user-agent=${userAgent.trim()}`,
-    ]
-  });
-
-  const page = await browser.newPage();
-  await page.authenticate({
-    username: account.user,
-    password: account.pass
-  });
-  await page.setViewport({
-    width: 1440,
-    height: 860,
-    deviceScaleFactor: 1
-  });
-  const cookiesString = fs.readFileSync(`${folderPath}/cookies/${account.account}.json`, 'utf8');
-  const cookies = JSON.parse(cookiesString);
-  await page.setCookie(...cookies);
-  await page.goto('https://www.threads.net/');
+  await launchBrowser({ account, headless: false, browsers, userAgents, withCookies: true });
+  await openPage({ account, url: 'https://www.threads.net/', browsers, pages, withCookies: true });
 });
 
 // Handle import accounts

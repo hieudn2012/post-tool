@@ -33,13 +33,12 @@
       <thead>
         <tr>
           <th>Index</th>
-          <th>IP</th>
-          <th>Port</th>
-          <th>User</th>
+          <th>Proxy</th>
           <th>Account</th>
           <th>Time post</th>
           <th>Status</th>
           <th>Latest post</th>
+          <th>Mode</th>
           <th></th>
         </tr>
       </thead>
@@ -65,20 +64,10 @@
         indexCell.textContent = account.id;
         row.appendChild(indexCell); 
 
-        // IP Column
+        // Proxy Column
         const ipCell = document.createElement('td');
-        ipCell.textContent = account.ip;
+        ipCell.textContent = `${account.ip} || ${account.port} || ${account.user} || ${account.pass}`;
         row.appendChild(ipCell);
-
-        // Port Column
-        const portCell = document.createElement('td');
-        portCell.textContent = account.port;
-        row.appendChild(portCell);
-
-        // User Column
-        const userCell = document.createElement('td');
-        userCell.textContent = account.user;
-        row.appendChild(userCell);
 
         // Account Column
         const accountCell = document.createElement('td');
@@ -87,6 +76,7 @@
 
         // Time post Column
         const timePostCell = document.createElement('td');
+        timePostCell.classList.add('w-[200px]');
         // create an input element
         const timePostInput = document.createElement('input');
         timePostInput.setAttribute('type', 'number');
@@ -110,6 +100,20 @@
         latestPostCell.setAttribute('id', `latest-post-${account.id}`);
         row.appendChild(latestPostCell);
 
+        // Mode Column, add select element
+        const modeCell = document.createElement('td');
+        modeCell.classList.add('w-[200px]');
+        const modeSelect = document.createElement('select');
+        modeSelect.setAttribute('id', `mode-${account.id}`);
+        modeSelect.value = 'hidden';
+        modeSelect.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md');
+        modeSelect.innerHTML = `
+          <option value="hidden">Hidden</option>
+          <option value="brower">Browser</option>
+        `;
+        modeCell.appendChild(modeSelect);
+        row.appendChild(modeCell);
+
 
         // Login Button Column
         const loginCell = document.createElement('td');
@@ -129,7 +133,8 @@
         runButton.addEventListener('click', () => {
           // Trigger Puppeteer run for this account
           const timePost = document.getElementById(`time-post-${account.id}`).value;
-          window.electronAPI.run({ ...account, timePost: Number(timePost) });
+          const mode = document.getElementById(`mode-${account.id}`).value;
+          window.electronAPI.run({ ...account, timePost: Number(timePost), headless: mode === 'hidden'  });
         });
 
         // Test Button
@@ -219,7 +224,8 @@
 
       if (account.latestPost) {
         const latestPostCell = document.getElementById(`latest-post-${account.id}`);
-        latestPostCell.textContent = account.latestPost.date;
+        const date = new Date(account.latestPost.date);
+        latestPostCell.textContent = date.toLocaleString();
       }
 
       if (account.retry || account.isNewRound) {

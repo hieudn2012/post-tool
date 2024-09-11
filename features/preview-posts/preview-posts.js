@@ -2,7 +2,7 @@ const { BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const previewPosts = ({ folderPath, window }) => {
+const previewPosts = ({ window }) => {
   const modal = new BrowserWindow({
     parent: window,
     width: 800,
@@ -13,7 +13,7 @@ const previewPosts = ({ folderPath, window }) => {
   });
 
   // Show dev tools
-  modal.webContents.openDevTools();
+  // modal.webContents.openDevTools();
 
   // Load the HTML file
   modal.loadFile(path.join(__dirname, 'preview-posts.html'));
