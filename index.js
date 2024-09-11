@@ -8,10 +8,12 @@ const { importAccounts } = require('./features/import-accounts');
 const { importPosts } = require('./features/import-posts');
 const { run } = require('./features/run');
 const { sleep } = require('./features/common');
-const { previewPosts } = require('./features/preview-posts');
+const { previewPosts } = require('./features/preview-posts/preview-posts');
 
 let mainWindow;
-let folderPath = '';
+
+const configs = fs.readFileSync('config.txt', 'utf8');
+let folderPath = configs.split('\n')[0];
 
 const browsers = {};
 const pages = {};
@@ -357,7 +359,17 @@ ipcMain.handle('import-posts', async (event) => {
 
 // Handle preview posts
 ipcMain.handle('preview-posts', async (event) => {
-  return previewPosts(folderPath);
+  return previewPosts({ folderPath, window: mainWindow });
+});
+
+// Handle load default folder
+ipcMain.handle('load-default', (event) => {
+  createFolder(folderPath);
+  const accountString = fs.readFileSync(`${folderPath}/accounts.json`, 'utf8');
+  return {
+    path: folderPath,
+    accounts: JSON.parse(accountString)
+  };
 });
 
 app.whenReady().then(() => {

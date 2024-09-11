@@ -25,6 +25,9 @@ function createFolder(folderPath) {
   if (!fs.existsSync(`${folderPath}/posts.json`)) {
     fs.writeFileSync(`${folderPath}/posts.json`, "[]");
   }
+
+  // Save folderPath to config.txt
+  fs.writeFileSync(`config.txt`, folderPath);
 }
 
 module.exports = {

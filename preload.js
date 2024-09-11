@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   importAccounts: () => ipcRenderer.invoke('import-accounts'),
   importPosts: () => ipcRenderer.invoke('import-posts'),
   previewPosts: (folderPath) => ipcRenderer.invoke('preview-posts', folderPath),
+  loadDefault: () => ipcRenderer.invoke('load-default'),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

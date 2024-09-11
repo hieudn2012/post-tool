@@ -47,19 +47,6 @@
         <!-- Rows will be dynamically generated here -->
       </tbody>
     </table>
-
-    <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5 table"
-      id="preview-post-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Url</th>
-        </tr>
-      </thead>
-      <tbody id="preview-post-body">
-        <!-- Rows will be dynamically generated here -->
-      </tbody>
   </div>
 
   <script>
@@ -246,6 +233,12 @@
       loadAccounts(accounts);
     });
 
+    // Load default
+    window.electronAPI.loadDefault().then(({ accounts, path }) => {
+      document.getElementById('folder-input').value = path;
+      loadAccounts(accounts);
+    });
+
     // Import accounts
     document.getElementById('import-accounts').addEventListener('click', async () => {
       const { accounts } = await window.electronAPI.importAccounts();
@@ -260,30 +253,6 @@
     // Preview posts
     document.getElementById('preview-posts').addEventListener('click', async () => {
       const posts = await window.electronAPI.previewPosts();
-      const previewPostBody = document.getElementById('preview-post-body');
-
-      previewPostBody.innerHTML = '';
-
-      posts.forEach(post => {
-        const row = document.createElement('tr');
-
-        // ID Column
-        const idCell = document.createElement('td');
-        idCell.textContent = post.id;
-        row.appendChild(idCell);
-
-        // Title Column
-        const titleCell = document.createElement('td');
-        titleCell.textContent = post.title;
-        row.appendChild(titleCell);
-
-        // Url Column
-        const urlCell = document.createElement('td');
-        urlCell.textContent = post.url;
-        row.appendChild(urlCell);
-
-        previewPostBody.appendChild(row);
-      });
     });
   </script>
 </body>
