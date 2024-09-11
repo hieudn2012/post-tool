@@ -1,6 +1,7 @@
 const { BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { getRootPath } = require('../common');
 
 const previewPosts = ({ window }) => {
   const modal = new BrowserWindow({
@@ -20,13 +21,16 @@ const previewPosts = ({ window }) => {
 }
 
 ipcMain.handle('get-posts', async (event) => {
-  // Get path from config.txt
-  const configs = fs.readFileSync('config.txt', 'utf8');
-  const path = configs.split('\n')[0];
-  
-  const posts = fs.readFileSync(`${path}/posts.json`, 'utf8');
+  const path = getRootPath();
 
-  return JSON.parse(posts);
+  // get all posts from categories
+  const categories = fs.readdirSync(`${path}/categories`);
+  const data = categories.reduce((acc, category) => {
+    const posts = fs.readFileSync(`${path}/categories/${category}/posts.json`, 'utf8');
+    return acc.concat(JSON.parse(posts));
+  }, []);
+
+  return data;
 });
 
 module.exports = {

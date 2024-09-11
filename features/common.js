@@ -26,6 +26,7 @@ async function launchBrowser({ account, headless, browsers, userAgents, withCook
       `--user-agent=${userAgent}`
     ]
   });
+  
   browsers[account.id] = browser;
   userAgents[account.id] = userAgent;
   return browsers[account.id];
@@ -54,9 +55,10 @@ async function openPage({ account, url, browsers, pages, withCookies = false }) 
     password: account.pass
   });
   await page.setViewport({
-    width: 1280,
-    height: 800,
-    deviceScaleFactor: 1
+    // random from 1280x800, 1366x768, 1920x1080
+    width: [1280, 1366, 1920][Math.floor(Math.random() * 3)],
+    height: [800, 768, 1080][Math.floor(Math.random() * 3)],
+    deviceScaleFactor: 1,
   });
   if (withCookies) {
     const cookies = fs.readFileSync(`${folderPath}/cookies/${account.account}.json`, 'utf8');
@@ -83,6 +85,12 @@ async function sendEvent({ event, action = "action-result", account, ...props })
   await event.sender.send(action, { ...account, ...props });
 }
 
+function getAllCategories() {
+  const folderPath = getRootPath();
+  const categories = fs.readdirSync(`${folderPath}/categories`);
+  return categories;
+}
+
 module.exports = {
   sleep,
   getRootPath,
@@ -91,4 +99,5 @@ module.exports = {
   openPage,
   checkFolderPath,
   sendEvent,
+  getAllCategories,
 };

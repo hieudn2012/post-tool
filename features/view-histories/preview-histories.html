@@ -23,6 +23,7 @@
       <thead>
         <tr>
           <th>Post ID</th>
+          <th>Category</th>
           <th>Date</th>
         </tr>
       </thead>
@@ -53,6 +54,11 @@
         const idCell = document.createElement('td');
         idCell.textContent = history.id;
         row.appendChild(idCell);
+
+        // Category Column
+        const categoryCell = document.createElement('td');
+        categoryCell.textContent = history.category;
+        row.appendChild(categoryCell);
 
         // Date Column
         const titleCell = document.createElement('td');

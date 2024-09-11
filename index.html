@@ -19,53 +19,95 @@
 </head>
 
 <body>
-  <div class="p-4">
-    <div class="grid grid-cols-3 gap-4">
-      <div class="flex gap-2 items-center">
-        <input type="text" id="folder-input" class="w-full p-2 border-2 border-gray-200 rounded-md" readonly
-          placeholder="Select folder working on">
-        <button id="select-folder"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2">
-          <i class="fa-solid fa-database"></i>
-          <p>Select</p>
-        </button>
+  <div class="flex flex-col justify-between h-full min-h-screen">
+    <div class="p-4 flex-1">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex gap-2 items-center">
+          <input type="text" id="folder-input" class="w-full p-2 border-2 border-gray-200 rounded-md" readonly
+            placeholder="Select folder working on">
+          <button id="select-folder"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 flex-shrink-0">
+            <i class="fa-solid fa-database"></i>
+            <p>Select working folder</p>
+          </button>
+        </div>
       </div>
+
+      <div id="category-input-container" class="hidden">
+        <div class="flex items-center gap-2 w-[400px] py-5">
+          <input type="text" id="category-input" class="w-full p-2 border-2 border-gray-200 rounded-md]"
+            placeholder="Enter category name">
+          <button id="add-category-button"
+            class="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
+            <i class="fa-solid fa-plus"></i>
+            <p>Add</p>
+          </button>
+        </div>
+      </div>
+
+      <div id="import-posts-container" class="hidden">
+        <div class="flex gap-2 py-5">
+          <select id="category-select" class="p-2 border-2 border-gray-200 rounded-md"></select>
+          <button id="import-posts-button"
+            class="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
+            <i class="fa-solid fa-file"></i>
+            Text file
+          </button>
+          <button id="import-images-button"
+            class="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
+            <i class="fa-solid fa-image"></i>
+            <p>Images</p>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-5">
+        <div class="flex gap-2 flex-1 items-end">
+          <button id="import-accounts"
+            class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
+            <i class="fa-solid fa-file-import mr-2"></i>
+            Import accounts
+          </button>
+          <button id="import-posts"
+            class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
+            <i class="fa-solid fa-file-import mr-2"></i>
+            Import posts
+          </button>
+          <button id="preview-posts"
+            class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
+            <i class="fa-solid fa-list mr-2"></i>
+            Preview posts
+          </button>
+          <button id="add-category"
+            class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
+            <i class="fa-solid fa-plus mr-2"></i>
+            Add category
+          </button>
+        </div>
+        <div class="flex-shrink-0">
+        </div>
+      </div>
+      <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
+        <thead>
+          <tr class="text-sm">
+            <th>Index</th>
+            <th>Proxy</th>
+            <th>Account</th>
+            <th>Time post</th>
+            <th>Latest post</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="accountTable">
+          <!-- Rows will be dynamically generated here -->
+        </tbody>
+      </table>
     </div>
-    <div class="flex justify-between">
-      <div class="flex gap-2 flex-1 items-end">
-        <button id="import-accounts" class="bg-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg">
-          <i class="fa-solid fa-file-import mr-2"></i>
-          import accounts
-        </button>
-        <button id="import-posts" class="bg-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg">
-          <i class="fa-solid fa-file-import mr-2"></i>
-          import posts
-        </button>
-        <button id="preview-posts" class="bg-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg">
-          <i class="fa-solid fa-list mr-2"></i>
-          Preview posts</button>
-      </div>
-      <div class="flex-shrink-0 w-[100px] aspect-square">
-        <img src="hot-bac.png" class="rounded-md" />
-      </div>
+    <div class="flex justify-center flex-shrink-0 p-4">
+      <p class="text-center text-gray-400">Design by Oscar 2024</p>
     </div>
-    <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
-      <thead>
-        <tr class="text-sm">
-          <th>Index</th>
-          <th>Proxy</th>
-          <th>Account</th>
-          <th>Time post</th>
-          <th>Latest post</th>
-          <th>Mode</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="accountTable">
-        <!-- Rows will be dynamically generated here -->
-      </tbody>
-    </table>
   </div>
 
   <script>
@@ -131,11 +173,6 @@
         category.setAttribute('id', `category-${account.id}`);
         category.value = '';
         category.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md', 'mt-2');
-        category.innerHTML = `
-          <option value="1">Category 1</option>
-          <option value="2">Category 2</option>
-          <option value="3">Category 3</option>
-        `;
 
         modeCell.appendChild(modeSelect);
         modeCell.appendChild(category);
@@ -143,7 +180,7 @@
 
         // Status Column
         const statusCell = document.createElement('td');
-        statusCell.classList.add('min-w-[200px]');
+        statusCell.classList.add('min-w-[200px]', 'text-sm');
         statusCell.textContent = 'Not logged in';
         statusCell.setAttribute('id', `status-${account.id}`);
         row.appendChild(statusCell);
@@ -170,7 +207,12 @@
           // Trigger Puppeteer run for this account
           const timePost = document.getElementById(`time-post-${account.id}`).value;
           const mode = document.getElementById(`mode-${account.id}`).value;
-          window.electronAPI.run({ ...account, timePost: Number(timePost), headless: mode === 'hidden' });
+          const category = document.getElementById(`category-${account.id}`).value;
+          if (!category) {
+            alert('Please select category');
+            return;
+          }
+          window.electronAPI.run({ ...account, category, timePost: Number(timePost), headless: mode === 'hidden' });
         });
 
         // Test Button
@@ -311,14 +353,73 @@
       loadAccounts(accounts);
     });
 
-    // Import posts
-    document.getElementById('import-posts').addEventListener('click', async () => {
-      await window.electronAPI.importPosts();
-    });
-
     // Preview posts
     document.getElementById('preview-posts').addEventListener('click', async () => {
       const posts = await window.electronAPI.previewPosts();
+    });
+
+    // Load categories
+    function loadCategories() {
+      window.electronAPI.loadCategories().then(({ categories }) => {
+        const categorySelects = document.querySelectorAll('select[id^="category-"]');
+        categorySelects.forEach(select => {
+          select.innerHTML = `
+            <option value="">Select category</option>
+            ${categories.map(category => `<option value="${category}">${category}</option>`).join('')}
+          `;
+        });
+      });
+    };
+    loadCategories();
+
+    // Add category
+    document.getElementById('add-category').addEventListener('click', async () => {
+      const categoryInputContainer = document.getElementById('category-input-container');
+      if (categoryInputContainer.classList.contains('hidden')) {
+        categoryInputContainer.classList.remove('hidden');
+      } else {
+        categoryInputContainer.classList.add('hidden');
+      }
+    });
+
+    // Input and add category
+    document.getElementById('add-category-button').addEventListener('click', async () => {
+      const categoryInput = document.getElementById('category-input');
+      const category = categoryInput.value;
+      if (category) {
+        window.electronAPI.addCategory(category);
+        categoryInput.value = '';
+        const categoryInputContainer = document.getElementById('category-input-container');
+        categoryInputContainer.classList.add('hidden');
+        loadCategories();
+      }
+    });
+
+    // Control import posts
+    document.getElementById('import-posts').addEventListener('click', async () => {
+      const importPostsContainer = document.getElementById('import-posts-container');
+      if (importPostsContainer.classList.contains('hidden')) {
+        importPostsContainer.classList.remove('hidden');
+      } else {
+        importPostsContainer.classList.add('hidden');
+      }
+      const { categories } = await window.electronAPI.loadCategories();
+      const categorySelect = document.getElementById('category-select');
+      categorySelect.innerHTML = categories.map(category => `<option value="${category}">${category}</option>`).join('');
+    });
+
+    // Import posts
+    document.getElementById('import-posts-button').addEventListener('click', async () => {
+      const category = document.getElementById('category-select').value;
+      await window.electronAPI.importPosts(category);
+      alert('Posts imported successfully');
+    });
+
+    // Import images
+    document.getElementById('import-images-button').addEventListener('click', async () => {
+      const category = document.getElementById('category-select').value;
+      await window.electronAPI.importImages(category);
+      alert('Images imported successfully');
     });
   </script>
 </body>

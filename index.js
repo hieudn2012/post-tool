@@ -5,11 +5,14 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const { createFolder } = require('./features/create-folder');
 const { importAccounts } = require('./features/import-accounts');
-const { importPosts } = require('./features/import-posts');
+const { importPosts, importImages } = require('./features/import-posts');
 const { run } = require('./features/run');
 const { sleep, launchBrowser, openPage, checkFolderPath, getRootPath, sendEvent, closeBrowser } = require('./features/common');
 const { previewPosts } = require('./features/preview-posts/preview-posts');
 const { previewHistories } = require('./features/view-histories/preview-histories');
+const { loadCategories } = require('./features/load-categories');
+const { openModal } = require('./features/open-modal/open-modal');
+const { addCategory } = require('./features/add-category');
 
 let mainWindow;
 let folderPath = getRootPath();
@@ -31,11 +34,12 @@ async function saveCookies({ account, event }) {
   fs.writeFileSync(`${folderPath}/user-agent/${account.account}.txt`, userAgents[account.id]);
 
   await sendEvent({ event, account, status: 'Cookies saved' });
+  await browsers[account.id].close();
 }
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1440,
+    width: 1600,
     height: 860,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -272,8 +276,13 @@ ipcMain.handle('import-accounts', async (event) => {
 });
 
 // Handle import posts
-ipcMain.handle('import-posts', async (event) => {
-  return await importPosts(folderPath);
+ipcMain.handle('import-posts', async (event, category) => {
+  return await importPosts(category);
+});
+
+// Handle import images
+ipcMain.handle('import-images', async (event, category) => {
+  return await importImages(category);
 });
 
 // Handle preview posts
@@ -294,6 +303,21 @@ ipcMain.handle('load-default', (event) => {
 // Handle view histories
 ipcMain.handle('view-histories', async (event, account) => {
   return previewHistories({ window: mainWindow, account });
+});
+
+// Handle load categories
+ipcMain.handle('load-categories', async (event) => {
+  return loadCategories();
+});
+
+// Handle add category
+ipcMain.handle('add-category', async (event, category) => {
+  addCategory(category);
+});
+
+// Handle open modal
+ipcMain.handle('open-modal', async (event) => {
+  openModal({ window: mainWindow });
 });
 
 app.whenReady().then(() => {

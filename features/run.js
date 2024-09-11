@@ -4,16 +4,22 @@ const { sleep, launchBrowser, sendEvent, openPage, getRootPath } = require('./co
 
 // Handle run
 const run = async ({ event, account, browsers, userAgents, pages, headless }) => {
+  const category = account.category;
+  if (!category) {
+    sendEvent({ event, account, status: 'Category is not selected', retry: false });
+    return;
+  }
+
   const folderPath = getRootPath();
   if (!fs.existsSync(`${folderPath}/history/${account.account}.json`)) {
     fs.writeFileSync(`${folderPath}/history/${account.account}.json`, '{}');
   }
   const historyString = fs.readFileSync(`${folderPath}/history/${account.account}.json`, 'utf8');
   const history = JSON.parse(historyString);
-  const posted = history.posted || [];
-  const postedIds = posted.map(post => post.id);
+  const posted = (history.posted || []).filter(post => post.category === category);
+  const postedIds = posted.map(post => post.postId);
 
-  const postsString = fs.readFileSync(`${folderPath}/posts.json`, 'utf8');
+  const postsString = fs.readFileSync(`${folderPath}/categories/${category}/posts.json`, 'utf8');
   const posts = JSON.parse(postsString);
   let randomPost = posts[Math.floor(Math.random() * posts.length)];
   const seconds = account.timePost * 60 * 60 * 1000;
@@ -67,7 +73,7 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
       return;
     }
 
-    while (postedIds.includes(randomPost.id)) {
+    while (postedIds.includes(randomPost.postId)) {
       randomPost = posts[Math.floor(Math.random() * posts.length)];
     }
 
@@ -77,7 +83,7 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
     sendEvent({ event, account, status: 'Waiting to find upload image...' });
     await sleep(15000);
     const fileInputElement = await page.$('input[type="file"]');
-    await fileInputElement.uploadFile(`${folderPath}/images/${randomPost.id}.png`);
+    await fileInputElement.uploadFile(`${folderPath}/categories/${category}/images/${randomPost.id}.png`);
     sendEvent({ event, account, status: 'Uploaded image for post and Finding post content...' });
 
     // find div with class = "xzsf02u xw2csxc x1odjw0f x1n2onr6 x1hnll1o xpqswwc notranslate"
@@ -101,7 +107,7 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
     const newCookies = await page.cookies();
     fs.writeFileSync(`${folderPath}/cookies/${account.account}.json`, JSON.stringify(newCookies));
 
-    history.posted = [...posted, { id: randomPost.id, date: new Date().toISOString() }];
+    history.posted = [...history.posted || [], { id: randomPost.id, postId: randomPost.postId, date: new Date().toISOString(), category }];
     fs.writeFileSync(`${folderPath}/history/${account.account}.json`, JSON.stringify(history));
 
     sendEvent({ event, account, status: 'Waiting to save cookies... and start new round' });

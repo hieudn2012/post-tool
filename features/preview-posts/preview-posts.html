@@ -19,13 +19,16 @@
 
 <body>
   <div class="p-4">
+    <select id="category-select" class="p-2 border-2 border-gray-200 rounded-md"></select>
     <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5 table"
       id="preview-post-table">
       <thead>
         <tr>
+          <th>Index</th>
           <th>ID</th>
           <th>Title</th>
           <th>Url</th>
+          <th>Category</th>
         </tr>
       </thead>
       <tbody id="preview-post-body">
@@ -36,18 +39,50 @@
 
   <script>
 
-    async function loadData() {
+    async function loadData(category) {
       const posts = await window.electronAPI.getPosts();
       const previewPostBody = document.getElementById('preview-post-body');
 
+      // Group by category
+      const categories = posts.reduce((acc, post) => {
+        if (!acc.includes(post.category)) {
+          acc.push(post.category);
+        }
+        return acc;
+      }, []);
+
+      if (category === undefined) {
+        // generate category options
+        const categorySelect = document.getElementById('category-select');
+
+        // add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'All';
+        categorySelect.appendChild(defaultOption);
+
+        // add category options
+        categories.forEach(category => {
+          const option = document.createElement('option');
+          option.value = category;
+          option.textContent = category;
+          categorySelect.appendChild(option);
+        });
+      }
+
       previewPostBody.innerHTML = '';
 
-      posts.forEach(post => {
+      posts.filter((post) => !category ? true : category === post.category).forEach((post, index) => {
         const row = document.createElement('tr');
+
+        // Index Column
+        const indexCell = document.createElement('td');
+        indexCell.textContent = index + 1;
+        row.appendChild(indexCell);
 
         // ID Column
         const idCell = document.createElement('td');
-        idCell.textContent = post.id;
+        idCell.textContent = post.postId;
         row.appendChild(idCell);
 
         // Title Column
@@ -60,10 +95,21 @@
         urlCell.textContent = post.url;
         row.appendChild(urlCell);
 
+        // Category Column
+        const categoryCell = document.createElement('td');
+        categoryCell.textContent = post.category;
+        row.appendChild(categoryCell);
+
         previewPostBody.appendChild(row);
       });
     };
+
     loadData();
+
+    document.getElementById('category-select').addEventListener('change', (event) => {
+      loadData(event.target.value);
+    });
+    
   </script>
 </body>
 

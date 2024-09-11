@@ -28,7 +28,6 @@ ipcMain.handle('get-histories', async (event) => {
   const history = fs.readFileSync(`${path}/history/${selectedAccount.account}.json`, 'utf8');
 
   const data = JSON.parse(history);
-  console.log(data.posted, 'data');
   return data.posted || [];
 });
 

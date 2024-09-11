@@ -13,10 +13,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
   selectFolder: () => ipcRenderer.invoke('select-folder'),
   importAccounts: () => ipcRenderer.invoke('import-accounts'),
-  importPosts: () => ipcRenderer.invoke('import-posts'),
+  importPosts: (category) => ipcRenderer.invoke('import-posts', category),
+  importImages: (category) => ipcRenderer.invoke('import-images', category),
   previewPosts: (folderPath) => ipcRenderer.invoke('preview-posts', folderPath),
   loadDefault: () => ipcRenderer.invoke('load-default'),
   viewHistories: (account) => ipcRenderer.invoke('view-histories', account),
+  loadCategories: () => ipcRenderer.invoke('load-categories'),
+  addCategory: (category) => ipcRenderer.invoke('add-category', category),
+  openModal: () => ipcRenderer.invoke('open-modal'),
 });
 
 window.addEventListener('DOMContentLoaded', () => {
