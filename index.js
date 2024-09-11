@@ -9,6 +9,7 @@ const { importPosts } = require('./features/import-posts');
 const { run } = require('./features/run');
 const { sleep, launchBrowser, openPage, checkFolderPath, getRootPath, sendEvent, closeBrowser } = require('./features/common');
 const { previewPosts } = require('./features/preview-posts/preview-posts');
+const { previewHistories } = require('./features/view-histories/preview-histories');
 
 let mainWindow;
 let folderPath = getRootPath();
@@ -288,6 +289,11 @@ ipcMain.handle('load-default', (event) => {
     path: folderPath,
     accounts: JSON.parse(accountString)
   };
+});
+
+// Handle view histories
+ipcMain.handle('view-histories', async (event, account) => {
+  return previewHistories({ window: mainWindow, account });
 });
 
 app.whenReady().then(() => {

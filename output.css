@@ -574,6 +574,10 @@ video {
   display: grid;
 }
 
+.hidden {
+  display: none;
+}
+
 .w-\[200px\] {
   width: 200px;
 }

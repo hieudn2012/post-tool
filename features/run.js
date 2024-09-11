@@ -108,7 +108,7 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
     await sleep(3000);
 
     await browser.close();
-  
+
     sendEvent({
       event,
       account,
@@ -119,11 +119,37 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
       }
     });
 
+    // Send to API to save history
+    fetch('https://66e15506c831c8811b548c9a.mockapi.io/histories', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        postedBy: account.account,
+        postedAt: new Date().toLocaleString(),
+        postId: randomPost.id,
+      }),
+    });
+
   } catch (error) {
     // open dialog to show error
     event.sender.send('action-result', { ...account, status: `${error} || waiting for 60$ to start new round`, retry: false });
     await sleep(60000);
     event.sender.send('action-result', { ...account, status: `New round`, retry: true });
+
+    // Send to API to save error
+    fetch('https://66e15506c831c8811b548c9a.mockapi.io/errors', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        postedBy: account.account,
+        postedAt: new Date().toLocaleString(),
+        error: error,
+      }),
+    });
     await browser.close();
   }
 };

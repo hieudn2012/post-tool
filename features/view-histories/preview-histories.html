@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>View Histories</title>
+  <link rel="stylesheet" href="../../output.css">
+</head>
+
+<body>
+  <div class="p-4">
+    <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5 table"
+      id="preview-histories-table">
+      <thead>
+        <tr>
+          <th>Post ID</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="preview-histories-body">
+        <!-- Rows will be dynamically generated here -->
+      </tbody>
+    </table>
+    <div class="flex justify-center mt-5">
+      <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md"
+        id="clear-button">
+        Clear all
+      </button>
+    </div>
+  </div>
+
+  <script>
+
+    async function loadData() {
+      const histories = await window.electronAPI.getHistories();
+      const previewHistoriesBody = document.getElementById('preview-histories-body');
+
+      previewHistoriesBody.innerHTML = '';
+
+      histories.forEach(history => {
+        const row = document.createElement('tr');
+
+        // ID Column
+        const idCell = document.createElement('td');
+        idCell.textContent = history.id;
+        row.appendChild(idCell);
+
+        // Date Column
+        const titleCell = document.createElement('td');
+        titleCell.textContent = new Date(history.date).toLocaleString();
+        row.appendChild(titleCell);
+
+        previewHistoriesBody.appendChild(row);
+      });
+    };
+
+    document.getElementById('clear-button').addEventListener('click', async () => {
+      await window.electronAPI.clearHistories();
+      loadData();
+    });
+
+    loadData();
+
+
+  </script>
+</body>
+
+</html>

@@ -198,6 +198,15 @@
             });
         });
 
+        // View Histories Button
+        const viewHistoriesButton = document.createElement('button');
+        viewHistoriesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
+        viewHistoriesButton.textContent = 'View histories';
+        viewHistoriesButton.addEventListener('click', () => {
+          // Trigger Puppeteer view histories for this account
+          window.electronAPI.viewHistories(account);
+        });
+
         const actionContainer = document.createElement('div');
         actionContainer.classList.add('flex', 'gap-2', 'flex-wrap', 'w-[200px]');
         actionContainer.appendChild(testButton);
@@ -207,6 +216,7 @@
         actionContainer.appendChild(stopButton);
         actionContainer.appendChild(setupButton);
         actionContainer.appendChild(loginButton);
+        actionContainer.appendChild(viewHistoriesButton);
         actionContainer.appendChild(runButton);
         loginCell.appendChild(actionContainer);
         row.appendChild(loginCell);
