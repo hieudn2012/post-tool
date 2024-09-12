@@ -52,8 +52,8 @@ const importImages = async (category) => {
   const imagesPath = `${folderPath}/categories/${category}/images`;
   fs.mkdirSync(imagesPath, { recursive: true });
   fs.readdirSync(path).forEach(file => {
-    // only png files
-    if (file.endsWith('.png')) {
+    // only png files png, jpg, jpeg, gif, webp, svg
+    if (file.match(/\.(png|jpg|jpeg|gif|webp|svg)$/)) {
       fs.copyFileSync(`${path}/${file}`, `${imagesPath}/${file}`);
     }
   });
