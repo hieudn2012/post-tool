@@ -38,7 +38,7 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
     await sleep(timeSleep + Math.floor(Math.random() * 600000));
   }
 
-  const browser = await launchBrowser({
+  await launchBrowser({
     account,
     headless,
     browsers,
@@ -69,7 +69,7 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
     // check posted is full
     if (posted.length === posts.length) {
       sendEvent({ event, account, status: 'All posts are posted', retry: false });
-      await browser.close();
+      await browsers[account.id].close();
       return;
     }
 
@@ -113,7 +113,7 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
     sendEvent({ event, account, status: 'Waiting to save cookies... and start new round' });
     await sleep(3000);
 
-    await browser.close();
+    await browsers[account.id].close();
 
     sendEvent({
       event,
@@ -139,9 +139,14 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
     });
 
   } catch (error) {
-    // open dialog to show error
+    if (!browsers[account.id]) {
+      sendEvent({ event, account, status: 'You are stoped' });
+      return;
+    }
+
     event.sender.send('action-result', { ...account, status: `${error} || waiting for 60$ to start new round`, retry: false });
     await sleep(60000);
+    await browsers[account.id].close();
     event.sender.send('action-result', { ...account, status: `New round`, retry: true });
 
     // Send to API to save error
@@ -156,7 +161,6 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
         error: error,
       }),
     });
-    await browser.close();
   }
 };
 
