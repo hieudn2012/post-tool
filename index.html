@@ -223,7 +223,7 @@
           // Trigger Puppeteer run for this account
           const timePost = document.getElementById(`time-post-${account.id}`).value;
           const mode = document.getElementById(`mode-${account.id}`).value;
-          const category = document.getElementById(`category-${account.id}-${account.account}`).value;
+          const category = document.getElementById(`selectcategory-${account.account}`).value;
           if (!category) {
             alert('Please select category');
             return;
