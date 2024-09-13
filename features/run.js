@@ -83,8 +83,7 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
     await sleep(15000);
     const fileInputElement = await page.$('input[type="file"]');
 
-    const imageName = fs.readdirSync(`${folderPath}/categories/${category}/images`).find(file => file.startsWith(`${randomPost.id}.`));
-    await fileInputElement.uploadFile(`${folderPath}/categories/${category}/images/${imageName}`);
+    await fileInputElement.uploadFile(`${folderPath}/categories/${category}/images/${randomPost.id}.png`);
     sendEvent({ event, account, status: 'Uploaded image for post and Finding post content...' });
 
     // find div with class = "xzsf02u xw2csxc x1odjw0f x1n2onr6 x1hnll1o xpqswwc notranslate"
