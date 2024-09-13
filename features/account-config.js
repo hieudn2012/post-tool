@@ -55,9 +55,13 @@ const loadPostsByCategory = async () => {
 
 
 const getAccountConfig = (account) => {
-  const path = getRootPath();
-  const data = fs.readFileSync(`${path}/configs/${account.account}.json`, 'utf8');
-  return JSON.parse(data);
+  try {
+    const path = getRootPath();
+    const data = fs.readFileSync(`${path}/configs/${account.account}.json`, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return {};
+  }
 };
 
 export {
