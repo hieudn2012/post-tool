@@ -22,6 +22,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   addCategory: (category) => ipcRenderer.invoke('add-category', category),
   openModal: () => ipcRenderer.invoke('open-modal'),
   loadPostsByCategory: () => ipcRenderer.invoke('load-posts-by-category'),
+  saveAccountConfig: (account) => ipcRenderer.invoke('save-account-config', account),
+  getDefaultCategory: (account) => ipcRenderer.invoke('get-default-category', account),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

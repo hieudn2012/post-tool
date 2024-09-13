@@ -176,9 +176,14 @@
         `;
 
         const category = document.createElement('select');
-        category.setAttribute('id', `category-${account.id}`);
+        category.setAttribute('id', `category-${account.id}-${account.account}`);
         category.value = '';
         category.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md', 'mt-2');
+
+        category.addEventListener('change', () => {
+          const value = document.getElementById(`category-${account.id}-${account.account}`).value;
+          window.electronAPI.saveAccountConfig({ ...account, category: value });
+        });
 
         modeCell.appendChild(modeSelect);
         modeCell.appendChild(category);
@@ -213,7 +218,7 @@
           // Trigger Puppeteer run for this account
           const timePost = document.getElementById(`time-post-${account.id}`).value;
           const mode = document.getElementById(`mode-${account.id}`).value;
-          const category = document.getElementById(`category-${account.id}`).value;
+          const category = document.getElementById(`category-${account.id}-${account.account}`).value;
           if (!category) {
             alert('Please select category');
             return;
@@ -381,11 +386,15 @@
     function loadCategories() {
       window.electronAPI.loadPostsByCategory().then((categories) => {
         const categorySelects = document.querySelectorAll('select[id^="category-"]');
-        categorySelects.forEach(select => {
+        categorySelects.forEach(async (select) => {
+          // set default value
           select.innerHTML = `
             <option value="">Select category</option>
             ${categories.filter(category => category.isValid).map(category => `<option value="${category.category}">${category.category}</option>`).join('')}
           `;
+          // set default value for select
+          const value = await electronAPI.getDefaultCategory({ account: select.id.split('-')[2] });
+          select.value = value;
         });
       });
     };
@@ -411,6 +420,7 @@
         const categoryInputContainer = document.getElementById('category-input-container');
         categoryInputContainer.classList.add('hidden');
         loadCategories();
+        loadPostsByCaterogy();
       }
     });
 
@@ -432,6 +442,7 @@
       const category = document.getElementById('category-select').value;
       await window.electronAPI.importPosts(category);
       alert('Posts imported successfully');
+      loadPostsByCaterogy();
     });
 
     // Import images
@@ -439,6 +450,7 @@
       const category = document.getElementById('category-select').value;
       await window.electronAPI.importImages(category);
       alert('Images imported successfully');
+      loadPostsByCaterogy();
     });
 
 

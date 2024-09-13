@@ -22,6 +22,8 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { clearHistories } from './features/clear-history.js';
 import { loadPostsByCategory } from './features/load-posts-by-category.js';
+import { saveAccountConfig } from './features/save-account-config.js';
+import { getDefaultCategory } from './features/get-default-category.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -60,7 +62,7 @@ function createWindow() {
   mainWindow.loadFile('index.html')
 
   // Open devtool to debug
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 }
 
 ipcMain.handle('test', async (event, account) => {
@@ -334,6 +336,16 @@ ipcMain.handle('open-modal', async (event) => {
 // handle load posts by category
 ipcMain.handle('load-posts-by-category', async (event) => {
   return await loadPostsByCategory();
+});
+
+// handle save account config
+ipcMain.handle('save-account-config', async (event, account) => {
+  saveAccountConfig(account);
+});
+
+// Handle get default category
+ipcMain.handle('get-default-category', (event, account) => {
+  return getDefaultCategory(account);
 });
 
 app.whenReady().then(() => {
