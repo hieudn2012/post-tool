@@ -124,7 +124,8 @@
       // clear table
       tableBody.innerHTML = '';
 
-      accounts.forEach(account => {
+      accounts.forEach(async account => {
+        const config = await window.electronAPI.getAccountConfig(account);
         const row = document.createElement('tr');
 
         // Index Column
@@ -151,9 +152,14 @@
         timePostInput.setAttribute('placeholder', 'Time post');
         timePostInput.setAttribute('id', `time-post-${account.id}`);
         // set default value
-        timePostInput.setAttribute('value', '0.5');
+        timePostInput.setAttribute('value', config.timePost || 1);
         timePostInput.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md');
         timePostCell.appendChild(timePostInput);
+
+        timePostInput.addEventListener('change', () => {
+          const value = document.getElementById(`time-post-${account.id}`).value;
+          window.electronAPI.saveAccountConfig({ ...account, timePost: Number(value) });
+        });
         row.appendChild(timePostCell);
 
         // Latest post Column
@@ -176,12 +182,11 @@
         `;
 
         const category = document.createElement('select');
-        category.setAttribute('id', `category-${account.id}-${account.account}`);
-        category.value = '';
+        category.setAttribute('id', `selectcategory-${account.account}`);
         category.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md', 'mt-2');
 
-        category.addEventListener('change', () => {
-          const value = document.getElementById(`category-${account.id}-${account.account}`).value;
+        category.addEventListener('change', (event) => {
+          const value = document.getElementById(`selectcategory-${account.account}`).value;
           window.electronAPI.saveAccountConfig({ ...account, category: value });
         });
 
@@ -329,6 +334,26 @@
       });
     }
 
+    // Load categories
+    function loadCategories() {
+      window.electronAPI.loadPostsByCategory().then((categories) => {
+        // get all category selects
+        const elements = document.querySelectorAll("[id^='selectcategory']");
+        const categorySelects = document.querySelectorAll('select[id^="selectcategory-"]');
+
+        categorySelects.forEach(async (select) => {
+          select.innerHTML = `
+              <option value="">Select category</option>
+              ${categories.filter(category => category.isValid).map(category => `<option value="${category.category}">${category.category}</option>`).join('')}
+            `;
+
+          // set default value
+          const config = await window.electronAPI.getAccountConfig({ account: select.id.split('-')[1] });
+          select.value = config.category || '';
+        });
+      });
+    };
+
     async function loadPostsByCaterogy() {
       const categories = await window.electronAPI.loadPostsByCategory();
       const infoContainer = document.getElementById('categories-info-container');
@@ -369,6 +394,7 @@
     window.electronAPI.loadDefault().then(({ accounts, path }) => {
       document.getElementById('folder-input').value = path;
       loadAccounts(accounts);
+      loadCategories();
     });
 
     // Import accounts
@@ -376,29 +402,6 @@
       const { accounts } = await window.electronAPI.importAccounts();
       loadAccounts(accounts);
     });
-
-    // Preview posts
-    //document.getElementById('preview-posts').addEventListener('click', async () => {
-    //  const posts = await window.electronAPI.previewPosts();
-    //});
-
-    // Load categories
-    function loadCategories() {
-      window.electronAPI.loadPostsByCategory().then((categories) => {
-        const categorySelects = document.querySelectorAll('select[id^="category-"]');
-        categorySelects.forEach(async (select) => {
-          // set default value
-          select.innerHTML = `
-            <option value="">Select category</option>
-            ${categories.filter(category => category.isValid).map(category => `<option value="${category.category}">${category.category}</option>`).join('')}
-          `;
-          // set default value for select
-          const value = await electronAPI.getDefaultCategory({ account: select.id.split('-')[2] });
-          select.value = value;
-        });
-      });
-    };
-    loadCategories();
 
     // Add category
     document.getElementById('add-category').addEventListener('click', async () => {

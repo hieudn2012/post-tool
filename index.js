@@ -20,8 +20,7 @@ import { addCategory } from './features/add-category.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { clearHistories } from './features/clear-history.js';
-import { loadPostsByCategory } from './features/load-posts-by-category.js';
-import { saveAccountConfig } from './features/save-account-config.js';
+import { getAccountConfig, loadPostsByCategory, saveAccountConfig } from './features/account-config.js';
 import { getDefaultCategory } from './features/get-default-category.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -253,6 +252,11 @@ ipcMain.handle('save-account-config', async (event, account) => {
 // Handle get default category
 ipcMain.handle('get-default-category', (event, account) => {
   return getDefaultCategory(account);
+});
+
+// Handle get account config
+ipcMain.handle('get-account-config', (event, account) => {
+  return getAccountConfig(account);
 });
 
 app.whenReady().then(() => {
