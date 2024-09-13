@@ -35,7 +35,7 @@
 
       <div id="category-input-container" class="hidden">
         <div class="flex items-center gap-2 w-[400px] py-5">
-          <input type="text" id="category-input" class="w-full p-2 border-2 border-gray-200 rounded-md]"
+          <input type="text" id="category-input" class="w-full p-2 border-2 border-gray-200 rounded-md"
             placeholder="Enter category name">
           <button id="add-category-button"
             class="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
@@ -73,11 +73,11 @@
             <i class="fa-solid fa-file-import mr-2"></i>
             Import posts
           </button>
-          <button id="preview-posts"
+          <!-- <button id="preview-posts"
             class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
             <i class="fa-solid fa-list mr-2"></i>
             Preview posts
-          </button>
+          </button> -->
           <button id="add-category"
             class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
             <i class="fa-solid fa-plus mr-2"></i>
@@ -87,6 +87,10 @@
         <div class="flex-shrink-0">
         </div>
       </div>
+
+      <div id="categories-info-container" class="flex gap-2 mt-5">
+      </div>
+
       <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
         <thead>
           <tr class="text-sm">
@@ -104,6 +108,8 @@
           <!-- Rows will be dynamically generated here -->
         </tbody>
       </table>
+
+
     </div>
     <div class="flex justify-center flex-shrink-0 p-4">
       <p class="text-center text-gray-400">Design by Oscar 2024</p>
@@ -292,11 +298,12 @@
         const viewHistoriesButton = document.createElement('button');
         viewHistoriesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         viewHistoriesButton.innerHTML = `
-          <i class="fa-solid fa-history"></i>
+          <i class="fa-solid fa-broom"></i>
         `;
         viewHistoriesButton.addEventListener('click', () => {
           // Trigger Puppeteer view histories for this account
-          window.electronAPI.viewHistories(account);
+          window.electronAPI.clearHistories(account);
+          alert('Histories cleared');
         });
 
         const actionContainer = document.createElement('div');
@@ -314,6 +321,18 @@
         row.appendChild(loginCell);
 
         tableBody.appendChild(row);
+      });
+    }
+
+    async function loadPostsByCaterogy() {
+      const categories = await window.electronAPI.loadPostsByCategory();
+      const infoContainer = document.getElementById('categories-info-container');
+      infoContainer.innerHTML = '';
+      categories.forEach(category => {
+        const info = document.createElement('div');
+        info.classList.add('px-4', 'py-1', category.isValid ? 'bg-green-500' : 'bg-red-500', 'text-white', 'font-medium', 'text-sm', 'rounded-md');
+        info.textContent = `${category.category}: ${category.posts} || ${category.images}`;
+        infoContainer.appendChild(info);
       });
     }
 
@@ -354,18 +373,18 @@
     });
 
     // Preview posts
-    document.getElementById('preview-posts').addEventListener('click', async () => {
-      const posts = await window.electronAPI.previewPosts();
-    });
+    //document.getElementById('preview-posts').addEventListener('click', async () => {
+    //  const posts = await window.electronAPI.previewPosts();
+    //});
 
     // Load categories
     function loadCategories() {
-      window.electronAPI.loadCategories().then(({ categories }) => {
+      window.electronAPI.loadPostsByCategory().then((categories) => {
         const categorySelects = document.querySelectorAll('select[id^="category-"]');
         categorySelects.forEach(select => {
           select.innerHTML = `
             <option value="">Select category</option>
-            ${categories.map(category => `<option value="${category}">${category}</option>`).join('')}
+            ${categories.filter(category => category.isValid).map(category => `<option value="${category.category}">${category.category}</option>`).join('')}
           `;
         });
       });
@@ -421,6 +440,9 @@
       await window.electronAPI.importImages(category);
       alert('Images imported successfully');
     });
+
+
+    loadPostsByCaterogy();
   </script>
 </body>
 

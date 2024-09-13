@@ -1,5 +1,5 @@
-const { dialog } = require('electron');
-const fs = require('fs');
+import { dialog } from 'electron';
+import fs from 'node:fs';
 
 const importAccounts = async (folderPath) => {
   const { filePaths } = await dialog.showOpenDialog({
@@ -44,6 +44,6 @@ const importAccounts = async (folderPath) => {
   };
 };
 
-module.exports = {
+export {
   importAccounts,
 }

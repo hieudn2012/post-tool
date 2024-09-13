@@ -17,10 +17,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   importImages: (category) => ipcRenderer.invoke('import-images', category),
   previewPosts: (folderPath) => ipcRenderer.invoke('preview-posts', folderPath),
   loadDefault: () => ipcRenderer.invoke('load-default'),
-  viewHistories: (account) => ipcRenderer.invoke('view-histories', account),
+  clearHistories: (account) => ipcRenderer.invoke('clear-histories', account),
   loadCategories: () => ipcRenderer.invoke('load-categories'),
   addCategory: (category) => ipcRenderer.invoke('add-category', category),
   openModal: () => ipcRenderer.invoke('open-modal'),
+  loadPostsByCategory: () => ipcRenderer.invoke('load-posts-by-category'),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

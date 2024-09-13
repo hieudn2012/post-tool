@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'node:fs';
 
 function createFolder(folderPath) {
   if (!fs.existsSync(`${folderPath}/cookies`)) {
@@ -30,6 +30,6 @@ function createFolder(folderPath) {
   fs.writeFileSync(`config.txt`, folderPath);
 }
 
-module.exports = {
+export {
   createFolder,
 };

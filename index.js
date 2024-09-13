@@ -1,18 +1,29 @@
-const { app, BrowserWindow, ipcMain, dialog, ipcRenderer } = require('electron')
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import puppeteer from 'puppeteer';
+import fs from 'node:fs';
+import { createFolder } from './features/create-folder.js';
+import { importAccounts } from './features/import-accounts.js';
+import { importPosts, importImages } from './features/import-posts.js';
+import { run } from './features/run.js';
+import {
+  sleep,
+  launchBrowser,
+  openPage,
+  checkFolderPath,
+  getRootPath,
+  sendEvent,
+  closeBrowser,
+} from './features/common.js';
+import { loadCategories } from './features/load-categories.js';
+import { openModal } from './features/open-modal/open-modal.js';
+import { addCategory } from './features/add-category.js';
 
-const path = require('node:path')
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-const { createFolder } = require('./features/create-folder');
-const { importAccounts } = require('./features/import-accounts');
-const { importPosts, importImages } = require('./features/import-posts');
-const { run } = require('./features/run');
-const { sleep, launchBrowser, openPage, checkFolderPath, getRootPath, sendEvent, closeBrowser } = require('./features/common');
-const { previewPosts } = require('./features/preview-posts/preview-posts');
-const { previewHistories } = require('./features/view-histories/preview-histories');
-const { loadCategories } = require('./features/load-categories');
-const { openModal } = require('./features/open-modal/open-modal');
-const { addCategory } = require('./features/add-category');
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { clearHistories } from './features/clear-history.js';
+import { loadPostsByCategory } from './features/load-posts-by-category.js';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let mainWindow;
 let folderPath = getRootPath();
@@ -42,7 +53,7 @@ function createWindow() {
     width: 1600,
     height: 860,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: join(__dirname, 'preload.js'),
     }
   })
 
@@ -287,7 +298,7 @@ ipcMain.handle('import-images', async (event, category) => {
 
 // Handle preview posts
 ipcMain.handle('preview-posts', async (event) => {
-  return previewPosts({ folderPath, window: mainWindow });
+  console.log('Preview posts');
 });
 
 // Handle load default folder
@@ -301,8 +312,8 @@ ipcMain.handle('load-default', (event) => {
 });
 
 // Handle view histories
-ipcMain.handle('view-histories', async (event, account) => {
-  return previewHistories({ window: mainWindow, account });
+ipcMain.handle('clear-histories', async (event, account) => {
+  clearHistories(account);
 });
 
 // Handle load categories
@@ -318,6 +329,11 @@ ipcMain.handle('add-category', async (event, category) => {
 // Handle open modal
 ipcMain.handle('open-modal', async (event) => {
   openModal({ window: mainWindow });
+});
+
+// handle load posts by category
+ipcMain.handle('load-posts-by-category', async (event) => {
+  return await loadPostsByCategory();
 });
 
 app.whenReady().then(() => {

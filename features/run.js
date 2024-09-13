@@ -1,6 +1,5 @@
-const fs = require('fs');
-const puppeteer = require('puppeteer');
-const { sleep, launchBrowser, sendEvent, openPage, getRootPath } = require('./common');
+import fs from 'node:fs';
+import { sleep, launchBrowser, sendEvent, openPage, getRootPath } from './common.js';
 
 // Handle run
 const run = async ({ event, account, browsers, userAgents, pages, headless }) => {
@@ -166,6 +165,6 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
   }
 };
 
-module.exports = {
+export {
   run,
 };

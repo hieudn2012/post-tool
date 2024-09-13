@@ -1,24 +1,6 @@
-const { BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const fs = require('fs');
-const { getRootPath } = require('../common');
-
-const previewPosts = ({ window }) => {
-  const modal = new BrowserWindow({
-    parent: window,
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-  });
-
-  // Show dev tools
-  // modal.webContents.openDevTools();
-
-  // Load the HTML file
-  modal.loadFile(path.join(__dirname, 'preview-posts.html'));
-}
+import { ipcMain } from 'electron';
+import fs from 'node:fs';
+import { getRootPath } from '../common.js';
 
 ipcMain.handle('get-posts', async (event) => {
   const path = getRootPath();
@@ -33,6 +15,6 @@ ipcMain.handle('get-posts', async (event) => {
   return data;
 });
 
-module.exports = {
+export {
   previewPosts,
 };

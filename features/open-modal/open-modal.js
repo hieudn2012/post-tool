@@ -1,5 +1,10 @@
-const { BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
+import { BrowserWindow } from 'electron';
+import path from 'path';
+
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const openModal = ({ window }) => {
   const modal = new BrowserWindow({
@@ -12,9 +17,9 @@ const openModal = ({ window }) => {
   // modal.webContents.openDevTools();
 
   // Load the HTML file
-  modal.loadFile(path.join(__dirname, 'modal.html'));
+  modal.loadFile('modal.html');
 }
 
-module.exports = {
+export {
   openModal,
 };

@@ -38,6 +38,8 @@
   </div>
 
   <script>
+    const { ipcRenderer } = require('electron');
+    console.log('ipcRenderer', ipcRenderer);
 
     async function loadData(category) {
       const posts = await window.electronAPI.getPosts();
@@ -109,7 +111,6 @@
     document.getElementById('category-select').addEventListener('change', (event) => {
       loadData(event.target.value);
     });
-    
   </script>
 </body>
 

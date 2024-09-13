@@ -1,5 +1,5 @@
-const fs = require('fs');
-const puppeteer = require('puppeteer');
+import fs from 'node:fs';
+import puppeteer from 'puppeteer';
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -26,7 +26,7 @@ async function launchBrowser({ account, headless, browsers, userAgents, withCook
       `--user-agent=${userAgent}`
     ]
   });
-  
+
   browsers[account.id] = browser;
   userAgents[account.id] = userAgent;
   return browsers[account.id];
@@ -91,7 +91,7 @@ function getAllCategories() {
   return categories;
 }
 
-module.exports = {
+export {
   sleep,
   getRootPath,
   launchBrowser,

@@ -1,9 +1,15 @@
-const { BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const fs = require('fs');
-const { getRootPath } = require('../common');
+import { BrowserWindow, ipcMain } from 'electron';
+import fs from 'node:fs';
+import { getRootPath } from '../common.js';
 
 let selectedAccount = {};
+
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Manually create __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const previewHistories = ({ window, account }) => {
   selectedAccount = account;
@@ -12,7 +18,7 @@ const previewHistories = ({ window, account }) => {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: join(__dirname, 'preload.js'),
     },
   });
 
@@ -20,7 +26,7 @@ const previewHistories = ({ window, account }) => {
   // modal.webContents.openDevTools();
 
   // Load the HTML file
-  modal.loadFile(path.join(__dirname, 'preview-histories.html'));
+  modal.loadFile('preview-histories.html');
 }
 
 ipcMain.handle('get-histories', async (event) => {
@@ -36,6 +42,6 @@ ipcMain.handle('clear-histories', async (event) => {
   fs.writeFileSync(`${path}/history/${selectedAccount.account}.json`, JSON.stringify({ posted: [] }));
 });
 
-module.exports = {
+export {
   previewHistories,
 };

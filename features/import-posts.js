@@ -1,6 +1,6 @@
-const { dialog } = require('electron');
-const fs = require('fs');
-const { getRootPath } = require('./common');
+import { dialog } from 'electron';
+import fs from 'node:fs';
+import { getRootPath } from './common.js';
 
 const importPosts = async (category) => {
   const folderPath = getRootPath();
@@ -59,7 +59,7 @@ const importImages = async (category) => {
   });
 };
 
-module.exports = {
+export {
   importPosts,
   importImages,
 }

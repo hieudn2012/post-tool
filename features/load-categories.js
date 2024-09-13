@@ -1,5 +1,5 @@
-const fs = require('fs');
-const { getRootPath } = require('./common');
+import fs from 'node:fs';
+import { getRootPath } from './common.js';
 
 function loadCategories() {
   const path = getRootPath();
@@ -9,6 +9,6 @@ function loadCategories() {
   };
 }
 
-module.exports = {
+export {
   loadCategories,
 };

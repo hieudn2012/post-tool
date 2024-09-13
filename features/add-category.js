@@ -1,5 +1,5 @@
-const fs = require('fs');
-const { getRootPath } = require('./common');
+import fs from 'node:fs';
+import { getRootPath } from './common.js';
 
 function addCategory(category) {
   const path = getRootPath();
@@ -17,6 +17,6 @@ function addCategory(category) {
   fs.mkdirSync(`${path}/categories/${category}/images`);
 };
 
-module.exports = {
+export {
   addCategory
 };
