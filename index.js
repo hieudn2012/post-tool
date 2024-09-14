@@ -5,7 +5,6 @@ import { importAccounts } from './features/import-accounts.js';
 import { importPosts, importImages } from './features/import-posts.js';
 import { run } from './features/run.js';
 import {
-  sleep,
   launchBrowser,
   openPage,
   checkFolderPath,
@@ -24,6 +23,9 @@ import { getAccountConfig, loadPostsByCategory, saveAccountConfig } from './feat
 import { getDefaultCategory } from './features/get-default-category.js';
 import { login } from './features/login.js';
 import { saveCookie } from './features/save-cookie.js';
+import { THREADS_LOGIN_URL } from './src/constants/common.js'
+import { setupInstagram } from './features/setup-instagram.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -52,7 +54,7 @@ function createWindow() {
 ipcMain.handle('test', async (event, account) => {
   checkFolderPath({ window: mainWindow });
   await launchBrowser({ account, headless: false, browsers, userAgents });
-  await openPage({ account, url: 'https://www.threads.net/login/', browsers, pages });
+  await openPage({ account, url: THREADS_LOGIN_URL, browsers, pages });
 });
 
 // Handle the login event from the renderer process
@@ -176,6 +178,11 @@ ipcMain.handle('get-default-category', (event, account) => {
 // Handle get account config
 ipcMain.handle('get-account-config', (event, account) => {
   return getAccountConfig(account);
+});
+
+// Handle setup Instagram
+ipcMain.handle('setup-instagram', async (event, account) => {
+  return setupInstagram({ account, browsers, userAgents, pages });
 });
 
 app.whenReady().then(() => {

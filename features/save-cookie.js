@@ -1,8 +1,11 @@
-import { sendEvent } from "./common.js";
+import fs from 'node:fs';
+import { THREADS_LOGIN_URL } from "../src/constants/common.js";
+import { getRootPath, sendEvent } from "./common.js";
 
 // save cookies
 async function saveCookie({ account, event, pages, browsers, userAgents }) {
-  const page = pages[`${account.id}_https://www.threads.net/login/`];
+  const folderPath = getRootPath();
+  const page = pages[`${account.id}_${THREADS_LOGIN_URL}`];
   if (!page) {
     sendEvent({ account, event, status: 'No page found' });
     throw new Error(`No page found with ID ${account.id}.`);

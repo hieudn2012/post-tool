@@ -304,7 +304,7 @@
             });
         });
 
-        // View Histories Button
+        // Clear Histories Button
         const viewHistoriesButton = document.createElement('button');
         viewHistoriesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
         viewHistoriesButton.innerHTML = `
@@ -316,6 +316,19 @@
           alert('Histories cleared');
         });
 
+        // Setup Instagram Button
+        const setupInstagramButton = document.createElement('button');
+        setupInstagramButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
+        setupInstagramButton.innerHTML = `
+          <i class="fa-brands fa-instagram"></i>
+        `;
+        setupInstagramButton.addEventListener('click', () => {
+          // Trigger Puppeteer setup instagram for this account
+          window.electronAPI.setupInstagram(account);
+        });
+
+
+
         const actionContainer = document.createElement('div');
         actionContainer.classList.add('flex', 'gap-2', 'flex-wrap', 'w-[400px]');
         actionContainer.appendChild(testButton);
@@ -326,6 +339,7 @@
         actionContainer.appendChild(setupButton);
         actionContainer.appendChild(loginButton);
         actionContainer.appendChild(viewHistoriesButton);
+        actionContainer.appendChild(setupInstagramButton);
         actionContainer.appendChild(runButton);
         loginCell.appendChild(actionContainer);
         row.appendChild(loginCell);

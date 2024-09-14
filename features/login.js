@@ -1,12 +1,13 @@
 import fs from 'node:fs';
 import { get2FaCode, getRootPath, launchBrowser, openPage } from './common.js';
+import { THREADS_LOGIN_URL } from '../src/constants/common.js';
 
 async function login({ account, browsers, pages, userAgents }) {
   const folderPath = getRootPath();
   try {
     const userAgent = fs.readFileSync('user-agent.txt', 'utf8').split('\n')[Math.floor(Math.random() * 10)];
     await launchBrowser({ account, headless: false, browsers, userAgents });
-    const page = await openPage({ account, url: 'https://www.threads.net/login/', browsers, pages });
+    const page = await openPage({ account, url: THREADS_LOGIN_URL, browsers, pages });
 
     // find input with tabindex = 0
     const userInputElement = await page.$('input[tabindex="0"]');
