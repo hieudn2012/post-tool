@@ -21,7 +21,7 @@ async function login({ account, browsers, pages, userAgents }) {
     await page.keyboard.press('Tab');
     await page.keyboard.press('Enter');
 
-    const code = await get2FaCode();
+    const code = await get2FaCode(account.account2fa);
 
     // find input with autocomplete = "one-time-code"
     const codeInputElement = await page.$('input[autocomplete="one-time-code"]');
