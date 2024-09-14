@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { get2FaCode, getRootPath, launchBrowser, openPage } from './common.js';
+import { get2FaCode, getRootPath, launchBrowser, openPage, sleep } from './common.js';
 import { THREADS_LOGIN_URL } from '../src/constants/common.js';
 
 async function login({ account, browsers, pages, userAgents }) {
@@ -24,6 +24,7 @@ async function login({ account, browsers, pages, userAgents }) {
     const code = await get2FaCode(account.account2fa);
 
     // find input with autocomplete = "one-time-code"
+    await sleep(5000);
     const codeInputElement = await page.$('input[autocomplete="one-time-code"]');
     await codeInputElement.type(code);
 
