@@ -22,6 +22,8 @@ import { fileURLToPath } from 'url';
 import { clearHistories } from './features/clear-history.js';
 import { getAccountConfig, loadPostsByCategory, saveAccountConfig } from './features/account-config.js';
 import { getDefaultCategory } from './features/get-default-category.js';
+import { login } from './features/login.js';
+import { saveCookie } from './features/save-cookie.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -31,22 +33,6 @@ let folderPath = getRootPath();
 const browsers = {};
 const pages = {};
 const userAgents = {};
-
-// save cookies
-async function saveCookies({ account, event }) {
-  const page = pages[`${account.id}_https://www.threads.net/login/`];
-  if (!page) {
-    sendEvent({ account, status: 'No page found' });
-    throw new Error(`No page found with ID ${account.id}.`);
-  }
-  const cookies = await page.cookies();
-  fs.writeFileSync(`${folderPath}/cookies/${account.account}.json`, JSON.stringify(cookies));
-
-  fs.writeFileSync(`${folderPath}/user-agent/${account.account}.txt`, userAgents[account.id]);
-
-  await sendEvent({ event, account, status: 'Cookies saved' });
-  await browsers[account.id].close();
-}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -64,77 +50,14 @@ function createWindow() {
 }
 
 ipcMain.handle('test', async (event, account) => {
-  try {
-    checkFolderPath({ window: mainWindow });
-    await launchBrowser({ account, headless: false, browsers, userAgents });
-    await openPage({ account, url: 'https://www.threads.net/login/', browsers, pages });
-  } catch (error) {
-    console.error('Login failed:', error);
-  }
+  checkFolderPath({ window: mainWindow });
+  await launchBrowser({ account, headless: false, browsers, userAgents });
+  await openPage({ account, url: 'https://www.threads.net/login/', browsers, pages });
 });
-
 
 // Handle the login event from the renderer process
 ipcMain.handle('login', async (event, account) => {
-  try {
-    const userAgent = fs.readFileSync('user-agent.txt', 'utf8').split('\n')[Math.floor(Math.random() * 10)];
-    const browser = await launchBrowser({ account, headless: false, browsers, userAgents });
-    const page = await openPage({ account, url: 'https://www.threads.net/login/', browsers, pages });
-
-    // find input with tabindex = 0
-    const userInputElement = await page.$('input[tabindex="0"]');
-    await userInputElement.type(account.account);
-
-    // find input with type = "password"
-    const passInputElement = await page.$('input[type="password"]');
-    await passInputElement.type(account.password);
-
-    // tab to login button
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Enter');
-
-    // open a new tab with url = "2fa.live"
-    const newTab = await browser.newPage();
-    await newTab.goto('https://2fa.live/');
-
-    // find textarea with id = "listToken"
-    const tokenElement = await newTab.$('textarea#listToken');
-    await tokenElement.type(account.account2fa);
-    await sleep(5000);
-
-    // find button with id = "submit"
-    const submitElement = await newTab.$('a#submit');
-    submitElement.click();
-
-    // waiting 2s
-    await sleep(3000);
-
-    // find textarea with id = "output"
-    const outputElement = await newTab.$('textarea#output');
-    const value = await newTab.evaluate(element => element.value, outputElement);
-    const code = value.split('|')[1];
-
-    // quit new tab
-    await newTab.close();
-
-    // find input with autocomplete = "one-time-code"
-    const codeInputElement = await page.$('input[autocomplete="one-time-code"]');
-    await codeInputElement.type(code);
-
-    // press tab to submit
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Enter');
-    await sleep(20000);
-
-    // create new file json with account name
-    fs.writeFileSync(`${folderPath}/cookies/${account.account}.json`, JSON.stringify(await page.cookies()));
-
-    // save user agent by account name
-    fs.writeFileSync(`${folderPath}/user-agent/${account.account}.txt`, userAgent);
-
-  } catch (error) {
-    console.error('Login failed:', error);
-  }
+  await login({ account, browsers, pages, userAgents });
 });
 
 // Handle run
@@ -176,11 +99,7 @@ ipcMain.handle('stop', async (event, account) => {
 
 // Handle save cookies
 ipcMain.handle('save-cookies', async (event, account) => {
-  try {
-    await saveCookies({ account, event });
-  } catch (error) {
-    console.error('Save cookies failed:', error);
-  }
+  await saveCookie({ account, event, pages, browsers, userAgents });
 });
 
 // Handle load account

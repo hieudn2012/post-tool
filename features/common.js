@@ -93,6 +93,11 @@ function getAllCategories() {
   return categories;
 }
 
+async function get2FaCode(key) {
+  const data = await fetch(`https://2fa.live/tok/${key}`).then(res => res.json());
+  return data.token;
+}
+
 export {
   sleep,
   getRootPath,
@@ -102,4 +107,5 @@ export {
   checkFolderPath,
   sendEvent,
   getAllCategories,
+  get2FaCode,
 };
