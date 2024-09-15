@@ -23,9 +23,11 @@ async function launchBrowser({ account, headless, browsers, userAgents, withCook
 
   const browser = await puppeteer.launch({
     headless,
+
     args: [
       `--proxy-server=${account.ip}:${account.port}`,
-      `--user-agent=${userAgent}`
+      `--user-agent=${userAgent}`,
+      `--user-data-dir=${folderPath}/cache`
     ]
   });
 
