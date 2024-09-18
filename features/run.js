@@ -71,13 +71,14 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
 
     await browsers[accountId].close();
   } catch (error) {
-    if (error.message === 'net::ERR_PROXY_CONNECTION_FAILED at https://www.threads.net/') {
-      return await sendEvent({ event, runner: { accountId }, message: 'Proxy error, stoped!' });
-    }
     if (!browsers[accountId]) {
       return await sendEvent({ event, runner: { accountId }, message: 'You are stoped!' });
     }
-    await browsers[accountId].close();
+    await browsers[accountId]?.close();
+    if (error.message === 'net::ERR_PROXY_CONNECTION_FAILED at https://www.threads.net/') {
+      return await sendEvent({ event, runner: { accountId }, message: 'Proxy error, stoped!' });
+    }
+    
     await sendEvent({ event, runner: { accountId }, message: error.message });
     await sleep(10000);
     await sendEvent({ event, runner: { accountId }, message: 'Error occured, retrying...' });
