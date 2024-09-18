@@ -1,4 +1,4 @@
-import { sleep, launchBrowser, openPage, sendEvent } from './common.js';
+import { sleep, launchBrowser, openPage, sendEvent, closeBrowser } from './common.js';
 import { saveCookies } from './save-cookie.js';
 
 import fs from 'node:fs';
@@ -10,7 +10,7 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
   const { _id: contentId, title, link } = runner.content;
 
   const totalBrowsers = Object.keys(browsers).length;
-  if (totalBrowsers > 1) {
+  if (totalBrowsers > 6) {
     await sendEvent({ event, runner, message: 'You can only 6 browsers one time, waiting to continue...' });
     // ranrom time to wait from 30s to 1m
     await sleep(Math.floor(Math.random() * 30 + 30) * 1000);
@@ -51,7 +51,7 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
     
     if (!fs.existsSync(imagePaths)) {
       await sendEvent({ event, runner: { accountId }, message: 'Image not found!' });
-      browsers[accountId].close();
+      closeBrowser({ runner, browsers });
       return;
     }
 
@@ -77,12 +77,12 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
     await sleep(3000);
     await sendEvent({ event, runner: { accountId }, message: 'New round', retry: true });
 
-    await browsers[accountId].close();
+    await closeBrowser({ runner, browsers });
   } catch (error) {
     if (!browsers[accountId]) {
       return await sendEvent({ event, runner: { accountId }, message: 'You are stoped!' });
     }
-    await browsers[accountId]?.close();
+    await closeBrowser({ runner, browsers });
     if (error.message === 'net::ERR_PROXY_CONNECTION_FAILED at https://www.threads.net/') {
       return await sendEvent({ event, runner: { accountId }, message: 'Proxy error, stoped!' });
     }
