@@ -6,7 +6,7 @@ import { adminLogin } from './features/admin-login.js';
 import { getRunnerDetails, listenAction } from './features/listen-action.js';
 import { getRunners } from './features/get-runners.js';
 import { run } from './features/run.js';
-import { sendEvent } from './features/common.js';
+import { sendEvent, sleep } from './features/common.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -49,8 +49,12 @@ ipcMain.handle('listen-action', async (event, data) => {
 // Handle run
 ipcMain.handle('run', async (event, { accountId, token }) => {
   const runner = await getRunnerDetails({ accountId, token });
-  if (runner.error) {
+  if (runner.error && !runner.timeout) {
     return sendEvent({ event, runner: { accountId }, message: runner.error });
+  }
+  if (runner.timeout) {
+    await sendEvent({ event, runner: { accountId }, message: runner.error });
+    await sleep(runner.timeout);
   }
   run({ event, runner: { ...runner, token }, browsers, pages, headless: true });
 });
