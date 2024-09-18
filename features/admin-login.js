@@ -1,6 +1,6 @@
 import axios from 'axios';
 
 export const adminLogin = async (account) => {
-  const { data } = await axios.post('http://localhost:3000/auth/login', account);
+  const { data } = await axios.post('https://socialfly-be.fly.dev/auth/login', account);
   return data?.access_token;
 };

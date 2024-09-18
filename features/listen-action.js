@@ -3,7 +3,7 @@ import { openTestBrowser } from "./open-test-browser.js";
 import { closeBrowser, sendEvent } from "./common.js";
 
 export const getRunnerDetails = async ({ accountId, token }) => {
-  const { data } = await axios.get(`http://localhost:3000/runners/${accountId}`, {
+  const { data } = await axios.get(`https://socialfly-be.fly.dev/runners/${accountId}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return data;

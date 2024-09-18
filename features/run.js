@@ -1,6 +1,8 @@
 import { sleep, launchBrowser, openPage, sendEvent } from './common.js';
 import { saveCookies } from './save-cookie.js';
 
+import fs from 'node:fs';
+
 // Handle run
 const run = async ({ event, runner, browsers, pages, headless }) => {
   const working_folder = runner.working_folder;
@@ -11,7 +13,7 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
 
   await launchBrowser({
     runner,
-    headless,
+    headless: false,
     browsers,
     withCookies: true,
   });
@@ -37,6 +39,14 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
     await sendEvent({ event, runner: { accountId }, message: 'Uploading image...' });
     await sleep(10000);
     const fileInputElement = await page.$('input[type="file"]');
+    const imagePaths = `${working_folder}/images/${contentId}.png`;
+    
+    if (!fs.existsSync(imagePaths)) {
+      await sendEvent({ event, runner: { accountId }, message: 'Image not found!' });
+      browsers[accountId].close();
+      return;
+    }
+
     await fileInputElement.uploadFile(`${working_folder}/images/${contentId}.png`);
     await sleep(3000);
 
