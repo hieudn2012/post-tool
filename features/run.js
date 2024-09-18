@@ -149,7 +149,6 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
 
     event.sender.send('action-result', { ...account, status: `${error} || waiting for 60s to start new round`, retry: false });
     await sleep(60000);
-    await browsers[account.id].close();
     event.sender.send('action-result', { ...account, status: `New round`, retry: true });
 
     // Send to API to save error
