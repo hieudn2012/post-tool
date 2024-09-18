@@ -140,11 +140,14 @@ const run = async ({ event, account, browsers, userAgents, pages, headless }) =>
 
   } catch (error) {
     if (!browsers[account.id]) {
-      sendEvent({ event, account, status: 'You are stoped' });
-      return;
+      return await sendEvent({ event, account, status: 'You are stoped!' });
+    }
+    await browsers[account.id]?.close();
+    if (error.message === 'net::ERR_PROXY_CONNECTION_FAILED at https://www.threads.net/') {
+      return await sendEvent({ event, account, status: 'Proxy error, stoped!' });
     }
 
-    event.sender.send('action-result', { ...account, status: `${error} || waiting for 60$ to start new round`, retry: false });
+    event.sender.send('action-result', { ...account, status: `${error} || waiting for 60s to start new round`, retry: false });
     await sleep(60000);
     await browsers[account.id].close();
     event.sender.send('action-result', { ...account, status: `New round`, retry: true });
