@@ -9,6 +9,14 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
   const accountId = runner.accountId;
   const { _id: contentId, title, link } = runner.content;
 
+  const totalBrowsers = Object.keys(browsers).length;
+  if (totalBrowsers > 1) {
+    await sendEvent({ event, runner, message: 'You can only 6 browsers one time, waiting to continue...' });
+    // ranrom time to wait from 30s to 1m
+    await sleep(Math.floor(Math.random() * 30 + 30) * 1000);
+  }
+
+
   sendEvent({ event, runner, message: 'Opening Threads...' });
 
   await launchBrowser({
