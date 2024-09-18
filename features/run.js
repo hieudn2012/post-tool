@@ -13,7 +13,7 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
 
   await launchBrowser({
     runner,
-    headless: false,
+    headless: true,
     browsers,
     withCookies: true,
   });
