@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 puppeteer.use(StealthPlugin())
@@ -7,37 +6,28 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function getRootPath() {
-  const configs = fs.readFileSync('config.txt', 'utf8');
-  return configs.split('\n')[0];
-}
+async function launchBrowser({ runner, headless, browsers, withCookies = false }) {
+  const { accountId } = runner;
+  const { ip, port } = runner.proxy;
 
-async function launchBrowser({ account, headless, browsers, userAgents, withCookies = false }) {
-  const folderPath = getRootPath();
-  const agentList = fs.readFileSync(`${folderPath}/user-agent.txt`, 'utf8').trim().split('\n');
-  let userAgent = agentList[Math.floor(Math.random() * agentList.length)];
-
-  if (withCookies) {
-    userAgent = fs.readFileSync(`${folderPath}/user-agent/${account.account}.txt`, 'utf8');
-  }
+  const userAgent = withCookies ? runner.account.user_agent : runner.random_user_agent;
 
   const browser = await puppeteer.launch({
     headless,
 
     args: [
-      `--proxy-server=${account.ip}:${account.port}`,
+      `--proxy-server=${ip}:${port}`,
       `--user-agent=${userAgent}`,
-      `--user-data-dir=${folderPath}/cache`
+      // `--user-data-dir=`
     ]
   });
 
-  browsers[account.id] = browser;
-  userAgents[account.id] = userAgent;
-  return browsers[account.id];
+  browsers[accountId] = browser;
+  return browsers[accountId];
 }
 
-async function closeBrowser({ account, browsers }) {
-  const id = account.id;
+async function closeBrowser({ runner, browsers }) {
+  const id = runner.accountId;
   if (browsers[id]) {
     await browsers[id].close();
     console.log(`Browser with ID ${id} closed.`);
@@ -47,16 +37,18 @@ async function closeBrowser({ account, browsers }) {
   }
 }
 
-async function openPage({ account, url, browsers, pages, withCookies = false }) {
-  const folderPath = getRootPath();
-  const browser = browsers[account.id];
+async function openPage({ runner, url, browsers, pages, withCookies = false }) {
+  const { accountId } = runner;
+  const { user, pass } = runner.proxy;
+
+  const browser = browsers[accountId];
   if (!browser) {
-    throw new Error(`No browser found with ID ${account.id}.`);
+    throw new Error(`No browser found with ID ${accountId}`);
   }
   const page = await browser.newPage();
   await page.authenticate({
-    username: account.user,
-    password: account.pass
+    username: user,
+    password: pass
   });
   await page.setViewport({
     // random from 1280x800, 1366x768, 1920x1080
@@ -65,49 +57,22 @@ async function openPage({ account, url, browsers, pages, withCookies = false }) 
     deviceScaleFactor: 1,
   });
   if (withCookies) {
-    const cookies = fs.readFileSync(`${folderPath}/cookies/${account.account}.json`, 'utf8');
+    const cookies = runner.account.cookies;
     await page.setCookie(...JSON.parse(cookies));
   }
-  pages[`${account.id}_${url}`] = page;
+  pages[`${accountId}_${url}`] = page;
   await page.goto(url);
   return page;
 }
 
-function checkFolderPath({ window }) {
-  const folderPath = getRootPath();
-  if (!folderPath) {
-    dialog.showMessageBox(window, {
-      type: 'warning',
-      message: 'Please select a folder to store data',
-      buttons: ['OK']
-    });
-    throw new Error('Folder path is empty');
-  }
-}
-
-async function sendEvent({ event, action = "action-result", account, ...props }) {
-  await event.sender.send(action, { ...account, ...props });
-}
-
-function getAllCategories() {
-  const folderPath = getRootPath();
-  const categories = fs.readdirSync(`${folderPath}/categories`);
-  return categories;
-}
-
-async function get2FaCode(key) {
-  const data = await fetch(`https://2fa.live/tok/${key}`).then(res => res.json());
-  return data.token;
+async function sendEvent({ event, action = "action-result", runner, ...props }) {
+  await event.sender.send(action, { ...runner, ...props });
 }
 
 export {
   sleep,
-  getRootPath,
   launchBrowser,
   closeBrowser,
   openPage,
-  checkFolderPath,
   sendEvent,
-  getAllCategories,
-  get2FaCode,
 };

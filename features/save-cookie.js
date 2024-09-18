@@ -1,25 +1,44 @@
-import fs from 'node:fs';
-import { THEAD_URL, THREADS_LOGIN_URL } from "../src/constants/common.js";
-import { getRootPath, sendEvent } from "./common.js";
+import axios from 'axios';
+import { THREADS_LOGIN_URL, INSTAGRAM_URL, THEAD_URL } from '../src/constants/common.js';
 
-// save cookies
-async function saveCookie({ account, event, pages, browsers, userAgents }) {
-  const folderPath = getRootPath();
-
-  const page = pages[`${account.id}_${THREADS_LOGIN_URL}`] || pages[`${account.id}_${THEAD_URL}`];
-  if (!page) {
-    sendEvent({ account, event, status: 'No page found' });
-    throw new Error(`No page found with ID ${account.id}.`);
+export const saveCookies = async ({ runner, pages, isNew }) => {
+  const { accountId, random_user_agent, token } = runner;
+  const page = pages[`${accountId}_${THREADS_LOGIN_URL}`]
+    || pages[`${accountId}_${INSTAGRAM_URL}`]
+    || pages[`${accountId}_${THEAD_URL}`];
+  const newCookies = await page.cookies();
+  const data = {
+    cookies: JSON.stringify(newCookies),
+  };
+  if (isNew) {
+    data.user_agent = random_user_agent
   }
-  const cookies = await page.cookies();
-  fs.writeFileSync(`${folderPath}/cookies/${account.account}.json`, JSON.stringify(cookies));
+  await axios.put(`http://localhost:3000/accounts/${accountId}`, data, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
 
-  fs.writeFileSync(`${folderPath}/user-agent/${account.account}.txt`, userAgents[account.id]);
-
-  await sendEvent({ event, account, status: 'Cookies saved' });
-  await browsers[account.id].close();
-}
-
-export {
-  saveCookie
+  console.log({
+    account: runner.account.account,
+    ip: runner.proxy.ip,
+    port: runner.proxy.port,
+    content_id: runner.content._id,
+    category_id: runner.content.category,
+    category_name: runner.category.category,
+    create_at: new Date(),
+    root: runner.root,
+  }, 'request');
+  
+  // save history
+  await axios.post(`http://localhost:3000/history`, {
+    account: runner.account.account,
+    ip: runner.proxy.ip,
+    port: runner.proxy.port,
+    content_id: runner.content._id,
+    category_id: runner.content.category,
+    category_name: runner.category.category,
+    create_at: new Date(),
+    root: runner.root,
+  }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
 };

@@ -25,8 +25,10 @@
         <h1 class="text-2xl font-bold">Auto login and post</h1>
         <p class="text-gray-400 text-sm text-center">Please login to continue</p>
       </div>
-      <input type="text" id="username" class="p-2 border-2 border-gray-200 rounded-md w-full" placeholder="Enter username">
-      <input type="password" id="password" class="p-2 border-2 border-gray-200 rounded-md w-full" placeholder="Enter password">
+      <input type="text" id="username" class="p-2 border-2 border-gray-200 rounded-md w-full"
+        placeholder="Enter username">
+      <input type="password" id="password" class="p-2 border-2 border-gray-200 rounded-md w-full"
+        placeholder="Enter password">
       <button id="login-button"
         class="w-full bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
         <i class="fa-solid fa-user"></i>
@@ -36,90 +38,19 @@
   </div>
   <div class="flex flex-col justify-between h-full min-h-screen" id="main-screen">
     <div class="p-4 flex-1">
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex gap-2 items-center">
-          <input type="text" id="folder-input" class="w-full p-2 border-2 border-gray-200 rounded-md" readonly
-            placeholder="Select folder working on">
-          <button id="select-folder"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 flex-shrink-0">
-            <i class="fa-solid fa-database"></i>
-            <p>Select working folder</p>
-          </button>
-        </div>
-      </div>
 
-      <div id="category-input-container" class="hidden">
-        <div class="flex items-center gap-2 w-[400px] py-5">
-          <input type="text" id="category-input" class="w-full p-2 border-2 border-gray-200 rounded-md"
-            placeholder="Enter category name">
-          <button id="add-category-button"
-            class="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
-            <i class="fa-solid fa-plus"></i>
-            <p>Add</p>
-          </button>
-        </div>
-      </div>
-
-      <div id="import-posts-container" class="hidden">
-        <div class="flex gap-2 py-5">
-          <select id="category-select" class="p-2 border-2 border-gray-200 rounded-md"></select>
-          <button id="import-posts-button"
-            class="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
-            <i class="fa-solid fa-file"></i>
-            Text file
-          </button>
-          <button id="import-images-button"
-            class="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
-            <i class="fa-solid fa-image"></i>
-            <p>Images</p>
-          </button>
-        </div>
-      </div>
-
-      <div class="flex justify-between mt-5">
-        <div class="flex gap-2 flex-1 items-end">
-          <button id="import-accounts"
-            class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
-            <i class="fa-solid fa-file-import mr-2"></i>
-            Import accounts
-          </button>
-          <button id="import-posts"
-            class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
-            <i class="fa-solid fa-file-import mr-2"></i>
-            Import posts
-          </button>
-          <!-- <button id="preview-posts"
-            class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
-            <i class="fa-solid fa-list mr-2"></i>
-            Preview posts
-          </button> -->
-          <button id="add-category"
-            class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
-            <i class="fa-solid fa-plus mr-2"></i>
-            Add category
-          </button>
-        </div>
-        <div class="flex-shrink-0">
-        </div>
-      </div>
-
-      <div id="categories-info-container" class="flex gap-2 mt-5">
-      </div>
 
       <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
         <thead>
           <tr class="text-sm">
             <th>Index</th>
-            <th>Proxy</th>
             <th>Account</th>
-            <th>Time post</th>
-            <th>Latest post</th>
-            <th>Mode</th>
+            <th>Proxy</th>
             <th>Status</th>
             <th></th>
           </tr>
         </thead>
-        <tbody id="accountTable">
+        <tbody id="account-table">
           <!-- Rows will be dynamically generated here -->
         </tbody>
       </table>
@@ -131,7 +62,26 @@
     </div>
   </div>
 
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
   <script>
+    let token = ``;
+    const socket = io('http://localhost:3000');
+
+    socket.on('action', async (data) => {
+      if (data.action === 'RUN') {
+        return window.electronAPI.run({ ...data, token });
+      }
+      window.electronAPI.listenAction({ ...data, token });
+    });
+
+    window.electronAPI.onActionResult((data) => {
+      socket.emit('update-status', data);
+      if (data.retry) {
+        window.electronAPI.run({ ...data, token });
+      }
+    });
+
+
     function auth() {
       const mainScreen = document.getElementById('main-screen');
       const authScreen = document.getElementById('auth-screen');
@@ -143,377 +93,59 @@
       loginButton.addEventListener('click', async () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        if (username === 'admin' && password === 'admin') {
-          // hide auth screen by class
-          authScreen.classList.add('hidden');
+        const accessToken = await window.electronAPI.adminLogin({ username, password });
+        if (accessToken) {
           mainScreen.classList.remove('hidden');
+          authScreen.classList.add('hidden');
+          token = accessToken;
           main();
         } else {
-          alert('Invalid username or password');
-          
+          alert('Login failed');
         }
       });
     }
 
-    function main() {
-      // Generate table rows dynamically
-      const tableBody = document.getElementById('accountTable');
+    async function main() {
+      const runners = await window.electronAPI.getRunners(token);
+      runners.map((runner, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${runner.accountId}</td>
+          <td>${runner.account.account}</td>
+          <td>${runner.proxy.ip} : ${runner.proxy.port}</td>
+          <td>-</td>
+          <td class="w-[300px]">
+            <div class="flex gap-2 flex-wrap">
+              <button class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+                <i class="fa-solid fa-floppy-disk"></i>
+              </button>
+              
+              <button class="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+                <i class="fa-solid fa-stop"></i>
+              </button>
 
-      function loadAccounts(accounts) {
-        // clear table
-        tableBody.innerHTML = '';
+              <button class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+                <i class="fa-solid fa-qrcode"></i>
+              </button>
 
-        accounts.forEach(async account => {
-          const config = await window.electronAPI.getAccountConfig(account);
-          const row = document.createElement('tr');
+              <button class="bg-yellow-500 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+                <i class="fa-solid fa-broom"></i>
+              </button>
+              
+              <button class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+                <i class="fa-brands fa-instagram"></i>
+              </button>
 
-          // Index Column
-          const indexCell = document.createElement('td');
-          indexCell.textContent = account.id;
-          row.appendChild(indexCell);
-
-          // Proxy Column
-          const ipCell = document.createElement('td');
-          ipCell.textContent = `${account.ip} || ${account.port} || ${account.user} || ${account.pass}`;
-          row.appendChild(ipCell);
-
-          // Account Column
-          const accountCell = document.createElement('td');
-          accountCell.textContent = `${account.account} || ${account.password}`;
-          row.appendChild(accountCell);
-
-          // Time post Column
-          const timePostCell = document.createElement('td');
-          timePostCell.classList.add('w-[120px]');
-          // create an input element
-          const timePostInput = document.createElement('input');
-          timePostInput.setAttribute('type', 'number');
-          timePostInput.setAttribute('placeholder', 'Time post');
-          timePostInput.setAttribute('id', `time-post-${account.id}`);
-          // set default value
-          timePostInput.setAttribute('value', config.timePost || 1);
-          timePostInput.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md');
-          timePostCell.appendChild(timePostInput);
-
-          timePostInput.addEventListener('change', () => {
-            const value = document.getElementById(`time-post-${account.id}`).value;
-            window.electronAPI.saveAccountConfig({ ...account, timePost: Number(value) });
-          });
-          row.appendChild(timePostCell);
-
-          // Latest post Column
-          const latestPostCell = document.createElement('td');
-          latestPostCell.classList.add('w-[120px]');
-          latestPostCell.setAttribute('id', `latest-post-${account.id}`);
-          latestPostCell.textContent = '-';
-          row.appendChild(latestPostCell);
-
-          // Mode Column, add select element
-          const modeCell = document.createElement('td');
-          modeCell.classList.add('w-[150px]');
-          const modeSelect = document.createElement('select');
-          modeSelect.setAttribute('id', `mode-${account.id}`);
-          modeSelect.value = 'hidden';
-          modeSelect.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md');
-          modeSelect.innerHTML = `
-          <option value="hidden">Hidden</option>
-          <option value="brower">Browser</option>
+              <button class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+                <i class="fa-solid fa-play"></i>
+              </button>
+            </div>
+          </td>
         `;
-
-          const category = document.createElement('select');
-          category.setAttribute('id', `selectcategory-${account.account}`);
-          category.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md', 'mt-2');
-
-          category.addEventListener('change', (event) => {
-            const value = document.getElementById(`selectcategory-${account.account}`).value;
-            window.electronAPI.saveAccountConfig({ ...account, category: value });
-          });
-
-          modeCell.appendChild(modeSelect);
-          modeCell.appendChild(category);
-          row.appendChild(modeCell);
-
-          // Status Column
-          const statusCell = document.createElement('td');
-          statusCell.classList.add('min-w-[200px]', 'text-sm');
-          statusCell.textContent = 'Not logged in';
-          statusCell.setAttribute('id', `status-${account.id}`);
-          row.appendChild(statusCell);
-
-
-          // Login Button Column
-          const loginCell = document.createElement('td');
-          const loginButton = document.createElement('button');
-          loginButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          loginButton.textContent = 'Login';
-          loginButton.addEventListener('click', () => {
-            // Trigger Puppeteer login for this account
-            window.electronAPI.login(account);
-          });
-
-          // Run Button
-          const runButton = document.createElement('button');
-          runButton.setAttribute('id', `run-${account.id}`);
-          runButton.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          runButton.innerHTML = `
-          <i class="fa-solid fa-play"></i>
-        `;
-          runButton.addEventListener('click', () => {
-            // Trigger Puppeteer run for this account
-            const timePost = document.getElementById(`time-post-${account.id}`).value;
-            const mode = document.getElementById(`mode-${account.id}`).value;
-            const category = document.getElementById(`selectcategory-${account.account}`).value;
-            if (!category) {
-              alert('Please select category');
-              return;
-            }
-            window.electronAPI.run({ ...account, category, timePost: Number(timePost), headless: mode === 'hidden' });
-          });
-
-          // Test Button
-          const testButton = document.createElement('button');
-          testButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          testButton.textContent = 'Test';
-          testButton.addEventListener('click', () => {
-            // Trigger Puppeteer test for this account
-            window.electronAPI.test(account);
-          });
-
-          // Setup Button
-          const setupButton = document.createElement('button');
-          setupButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          setupButton.innerHTML = `
-          <i class="fa-brands fa-instagram"></i>
-        `;
-          setupButton.addEventListener('click', () => {
-            // Trigger Puppeteer setup for this account
-            window.electronAPI.setup(account);
-          });
-
-          // Stop Button
-          const stopButton = document.createElement('button');
-          stopButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          stopButton.textContent = 'Stop';
-          stopButton.innerHTML = `
-          <i class="fa-solid fa-stop"></i>
-        `;
-          stopButton.addEventListener('click', () => {
-            // Trigger Puppeteer stop for this account
-            window.electronAPI.stop(account);
-          });
-
-          // Save cookies Button
-          const saveCookiesButton = document.createElement('button');
-          saveCookiesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          saveCookiesButton.textContent = 'Save cookies';
-          saveCookiesButton.innerHTML = `
-          <i class="fa-solid fa-floppy-disk"></i>
-        `;
-          saveCookiesButton.addEventListener('click', () => {
-            // Trigger Puppeteer save cookies for this account
-            window.electronAPI.saveCookies(account);
-          });
-
-          // Load account Button
-          const loadAccountButton = document.createElement('button');
-          loadAccountButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          loadAccountButton.textContent = 'Load account';
-          loadAccountButton.addEventListener('click', () => {
-            // Trigger Puppeteer load account for this account
-            window.electronAPI.loadAccount(account);
-          });
-
-          // Copy 2fa Button
-          const copy2faButton = document.createElement('button');
-          copy2faButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          copy2faButton.textContent = 'Get 2fa code';
-          copy2faButton.innerHTML = `
-          <i class="fa-solid fa-qrcode"></i>
-        `;
-          copy2faButton.addEventListener('click', () => {
-            // Trigger Puppeteer copy 2fa for this account
-            fetch(`https://2fa.live/tok/${account.account2fa}`)
-              .then(response => response.json())
-              .then(data => {
-                alert(`2fa code copied to clipboard: ${data.token}`);
-                navigator.clipboard.writeText(data.token);
-              })
-              .catch(error => {
-                console.error('Error:', error);
-              });
-          });
-
-          // Clear Histories Button
-          const viewHistoriesButton = document.createElement('button');
-          viewHistoriesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          viewHistoriesButton.innerHTML = `
-          <i class="fa-solid fa-broom"></i>
-        `;
-          viewHistoriesButton.addEventListener('click', () => {
-            // Trigger Puppeteer view histories for this account
-            window.electronAPI.clearHistories(account);
-            alert('Histories cleared');
-          });
-
-          // Setup Instagram Button
-          const setupInstagramButton = document.createElement('button');
-          setupInstagramButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
-          setupInstagramButton.innerHTML = `
-          <i class="fa-brands fa-instagram"></i>
-        `;
-          setupInstagramButton.addEventListener('click', () => {
-            // Trigger Puppeteer setup instagram for this account
-            window.electronAPI.setupInstagram(account);
-          });
-
-
-
-          const actionContainer = document.createElement('div');
-          actionContainer.classList.add('flex', 'gap-2', 'flex-wrap', 'w-[400px]');
-          actionContainer.appendChild(testButton);
-          actionContainer.appendChild(saveCookiesButton);
-          actionContainer.appendChild(loadAccountButton);
-          actionContainer.appendChild(copy2faButton);
-          actionContainer.appendChild(stopButton);
-          actionContainer.appendChild(setupButton);
-          actionContainer.appendChild(loginButton);
-          actionContainer.appendChild(viewHistoriesButton);
-          actionContainer.appendChild(setupInstagramButton);
-          actionContainer.appendChild(runButton);
-          loginCell.appendChild(actionContainer);
-          row.appendChild(loginCell);
-
-          tableBody.appendChild(row);
-        });
-      }
-
-      // Load categories
-      function loadCategories() {
-        window.electronAPI.loadPostsByCategory().then((categories) => {
-          // get all category selects
-          const elements = document.querySelectorAll("[id^='selectcategory']");
-          const categorySelects = document.querySelectorAll('select[id^="selectcategory-"]');
-
-          categorySelects.forEach(async (select) => {
-            select.innerHTML = `
-              <option value="">Select category</option>
-              ${categories.filter(category => category.isValid).map(category => `<option value="${category.category}">${category.category}</option>`).join('')}
-            `;
-
-            // set default value
-            const config = await window.electronAPI.getAccountConfig({ account: select.id.split('-')[1] });
-            select.value = config.category || '';
-          });
-        });
-      };
-
-      async function loadPostsByCaterogy() {
-        const categories = await window.electronAPI.loadPostsByCategory();
-        const infoContainer = document.getElementById('categories-info-container');
-        infoContainer.innerHTML = '';
-        categories.forEach(category => {
-          const info = document.createElement('div');
-          info.classList.add('px-4', 'py-1', category.isValid ? 'bg-green-500' : 'bg-red-500', 'text-white', 'font-medium', 'text-sm', 'rounded-md');
-          info.textContent = `${category.category}: ${category.posts} || ${category.images}`;
-          infoContainer.appendChild(info);
-        });
-      }
-
-      // Listen for the result and update the DOM
-      window.electronAPI.onActionResult((account) => {
-        const statusCell = document.getElementById(`status-${account.id}`);
-        statusCell.textContent = account.status;
-
-        const runButton = document.getElementById(`run-${account.id}`);
-
-        if (account.latestPost) {
-          const latestPostCell = document.getElementById(`latest-post-${account.id}`);
-          const date = new Date(account.latestPost.date);
-          latestPostCell.textContent = date.toLocaleString();
-        }
-
-        if (account.retry || account.isNewRound) {
-          runButton.click();
-        }
+        document.getElementById('account-table').appendChild(tr);
       });
-
-      document.getElementById('select-folder').addEventListener('click', async () => {
-        const { path, accounts } = await window.electronAPI.selectFolder();
-        document.getElementById('folder-input').value = path;
-        loadAccounts(accounts);
-      });
-
-      // Load default
-      window.electronAPI.loadDefault().then(({ accounts, path }) => {
-        document.getElementById('folder-input').value = path;
-        loadAccounts(accounts);
-        loadCategories();
-      });
-
-      // Import accounts
-      document.getElementById('import-accounts').addEventListener('click', async () => {
-        const { accounts } = await window.electronAPI.importAccounts();
-        loadAccounts(accounts);
-      });
-
-      // Add category
-      document.getElementById('add-category').addEventListener('click', async () => {
-        const categoryInputContainer = document.getElementById('category-input-container');
-        if (categoryInputContainer.classList.contains('hidden')) {
-          categoryInputContainer.classList.remove('hidden');
-        } else {
-          categoryInputContainer.classList.add('hidden');
-        }
-      });
-
-      // Input and add category
-      document.getElementById('add-category-button').addEventListener('click', async () => {
-        const categoryInput = document.getElementById('category-input');
-        const category = categoryInput.value;
-        if (category) {
-          window.electronAPI.addCategory(category);
-          categoryInput.value = '';
-          const categoryInputContainer = document.getElementById('category-input-container');
-          categoryInputContainer.classList.add('hidden');
-          loadCategories();
-          loadPostsByCaterogy();
-        }
-      });
-
-      // Control import posts
-      document.getElementById('import-posts').addEventListener('click', async () => {
-        const importPostsContainer = document.getElementById('import-posts-container');
-        if (importPostsContainer.classList.contains('hidden')) {
-          importPostsContainer.classList.remove('hidden');
-        } else {
-          importPostsContainer.classList.add('hidden');
-        }
-        const { categories } = await window.electronAPI.loadCategories();
-        const categorySelect = document.getElementById('category-select');
-        categorySelect.innerHTML = categories.map(category => `<option value="${category}">${category}</option>`).join('');
-      });
-
-      // Import posts
-      document.getElementById('import-posts-button').addEventListener('click', async () => {
-        const category = document.getElementById('category-select').value;
-        await window.electronAPI.importPosts(category);
-        alert('Posts imported successfully');
-        loadPostsByCaterogy();
-      });
-
-      // Import images
-      document.getElementById('import-images-button').addEventListener('click', async () => {
-        const category = document.getElementById('category-select').value;
-        await window.electronAPI.importImages(category);
-        alert('Images imported successfully');
-        loadPostsByCaterogy();
-      });
-
-
-      loadPostsByCaterogy();
     }
 
-    // main();
     auth();
   </script>
 </body>
