@@ -56,7 +56,7 @@ ipcMain.handle('run', async (event, { accountId, token }) => {
     await sendEvent({ event, runner: { accountId }, message: runner.error });
     await sleep(runner.timeout);
   }
-  run({ event, runner: { ...runner, token }, browsers, pages, headless: true });
+  await run({ event, runner: { ...runner, token }, browsers, pages, headless: true });
 });
 
 // Handle action result

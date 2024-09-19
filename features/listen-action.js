@@ -1,9 +1,9 @@
 import axios from "axios";
-import { openTestBrowser } from "./open-test-browser.js";
 import { closeBrowser, sendEvent } from "./common.js";
+import { APP_API_URL } from "../src/constants/common.js";
 
 export const getRunnerDetails = async ({ accountId, token }) => {
-  const { data } = await axios.get(`https://socialfly-be.fly.dev/runners/${accountId}`, {
+  const { data } = await axios.get(`${APP_API_URL}/runners/${accountId}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return data;
