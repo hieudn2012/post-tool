@@ -59,6 +59,28 @@ ipcMain.handle('run', async (event, { accountId, token }) => {
   await run({ event, runner: { ...runner, token }, browsers, pages, headless: true });
 });
 
+// Handle run
+ipcMain.handle('run-all', async (event, token) => {
+  console.log('run-all');
+  const runners = await getRunners(token);
+
+  const runSingle = async ({ accountId }) => {
+    const runner = await getRunnerDetails({ accountId, token });
+    if (runner.error && !runner.timeout) {
+      return sendEvent({ event, runner: { accountId }, message: runner.error });
+    }
+    if (runner.timeout) {
+      await sendEvent({ event, runner: { accountId }, message: runner.error });
+      await sleep(runner.timeout);
+    }
+    await run({ event, runner: { ...runner, token }, browsers, pages, headless: true });
+  }
+
+  runners.forEach(({ accountId }) => {
+    runSingle({ accountId });
+  });
+});
+
 // Handle action result
 ipcMain.handle('action-result', async (event, data) => {
   console.log(data, 'action-result');

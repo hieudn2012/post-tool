@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   clearHistory: (runner) => ipcRenderer.invoke('clear-history', runner),
   instagramLogin: (runner) => ipcRenderer.invoke('instagram-login', runner),
   run: (runner) => ipcRenderer.invoke('run', runner),
+  runAll: (token) => ipcRenderer.invoke('run-all', token),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

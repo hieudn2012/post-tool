@@ -39,7 +39,13 @@
   <div class="flex flex-col justify-between h-full min-h-screen" id="main-screen">
     <div class="p-4 flex-1">
 
-
+      <div>
+        <button id="run-all-button"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+          <i class="fa-solid fa-play"></i>
+          <p>Run all</p>
+        </button>
+      </div>
       <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
         <thead>
           <tr class="text-sm">
@@ -107,6 +113,12 @@
 
     async function main() {
       const runners = await window.electronAPI.getRunners(token);
+
+      const runAllButton = document.getElementById('run-all-button');
+      runAllButton.addEventListener('click', async () => {
+        window.electronAPI.runAll(token);
+      });
+
       runners.map((runner, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `

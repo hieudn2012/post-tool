@@ -95,7 +95,7 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
     }
     await closeBrowser({ runner, browsers });
     if (error.message === 'net::ERR_PROXY_CONNECTION_FAILED at https://www.threads.net/') {
-      await updateAccountMessage({ message: `Proxy error: ${proxy?.ip}`, accountId, token });
+      await updateAccountMessage({ message: `Proxy error: ${runner.proxy?.ip}`, accountId, token });
       return;
     }
     await sendEvent({ event, runner: { accountId }, message: 'Retrying...', retry: true });
