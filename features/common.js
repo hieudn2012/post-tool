@@ -61,7 +61,7 @@ async function openPage({ runner, url, browsers, pages, withCookies = false }) {
     await page.setCookie(...JSON.parse(cookies));
   }
   pages[`${accountId}_${url}`] = page;
-  await page.goto(url);
+  await page.goto(url, { timeout: 90000 });
   return page;
 }
 
