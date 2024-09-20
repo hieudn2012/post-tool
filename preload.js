@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getDefaultCategory: (account) => ipcRenderer.invoke('get-default-category', account),
   getAccountConfig: (account) => ipcRenderer.invoke('get-account-config', account),
   setupInstagram: (account) => ipcRenderer.invoke('setup-instagram', account),
+  getCookies: (account) => ipcRenderer.invoke('get-cookies', account),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

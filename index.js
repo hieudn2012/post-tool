@@ -25,6 +25,7 @@ import { login } from './features/login.js';
 import { saveCookie } from './features/save-cookie.js';
 import { THREADS_LOGIN_URL } from './src/constants/common.js'
 import { setupInstagram } from './features/setup-instagram.js';
+import { getCookies } from './features/get-cookies.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -183,6 +184,11 @@ ipcMain.handle('get-account-config', (event, account) => {
 // Handle setup Instagram
 ipcMain.handle('setup-instagram', async (event, account) => {
   return setupInstagram({ account, browsers, userAgents, pages });
+});
+
+// Handle get cookies
+ipcMain.handle('get-cookies', async (event, account) => {
+  return await getCookies({ account });
 });
 
 app.whenReady().then(() => {

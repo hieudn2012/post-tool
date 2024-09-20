@@ -25,8 +25,10 @@
         <h1 class="text-2xl font-bold">Auto login and post</h1>
         <p class="text-gray-400 text-sm text-center">Please login to continue</p>
       </div>
-      <input type="text" id="username" class="p-2 border-2 border-gray-200 rounded-md w-full" placeholder="Enter username">
-      <input type="password" id="password" class="p-2 border-2 border-gray-200 rounded-md w-full" placeholder="Enter password">
+      <input type="text" id="username" class="p-2 border-2 border-gray-200 rounded-md w-full"
+        placeholder="Enter username">
+      <input type="password" id="password" class="p-2 border-2 border-gray-200 rounded-md w-full"
+        placeholder="Enter password">
       <button id="login-button"
         class="w-full bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
         <i class="fa-solid fa-user"></i>
@@ -150,7 +152,7 @@
           main();
         } else {
           alert('Invalid username or password');
-          
+
         }
       });
     }
@@ -174,7 +176,19 @@
 
           // Proxy Column
           const ipCell = document.createElement('td');
-          ipCell.textContent = `${account.ip} || ${account.port} || ${account.user} || ${account.pass}`;
+          ipCell.innerHTML = `
+            <div>
+              <div>
+                ${account.ip} || ${account.port} || ${account.user} || ${account.pass};
+              </div>
+              <div class="mt-5">
+                <input type="text" id="ip-${account.id}" class="w-full p-2 border-2 border-gray-200 rounded-md" placeholder="Custom IP">
+                <input type="text" id="port-${account.id}" class="w-full p-2 border-2 border-gray-200 rounded-md mt-2" placeholder="Custom port">
+                <input type="text" id="user-${account.id}" class="w-full p-2 border-2 border-gray-200 rounded-md mt-2" placeholder="Custom user">
+                <input type="text" id="pass-${account.id}" class="w-full p-2 border-2 border-gray-200 rounded-md mt-2" placeholder="Custom pass">
+              </div>
+            </div>
+          `;
           row.appendChild(ipCell);
 
           // Account Column
@@ -276,7 +290,11 @@
           testButton.textContent = 'Test';
           testButton.addEventListener('click', () => {
             // Trigger Puppeteer test for this account
-            window.electronAPI.test(account);
+            const ip = document.getElementById(`ip-${account.id}`).value || account.ip;
+            const port = document.getElementById(`port-${account.id}`).value || account.port;
+            const user = document.getElementById(`user-${account.id}`).value || account.user;
+            const pass = document.getElementById(`pass-${account.id}`).value || account.pass;
+            window.electronAPI.test({ ...account, ip, port, user, pass });
           });
 
           // Setup Button
@@ -320,7 +338,11 @@
           loadAccountButton.textContent = 'Load account';
           loadAccountButton.addEventListener('click', () => {
             // Trigger Puppeteer load account for this account
-            window.electronAPI.loadAccount(account);
+            const ip = document.getElementById(`ip-${account.id}`).value || account.ip;
+            const port = document.getElementById(`port-${account.id}`).value || account.port;
+            const user = document.getElementById(`user-${account.id}`).value || account.user;
+            const pass = document.getElementById(`pass-${account.id}`).value || account.pass;
+            window.electronAPI.loadAccount({ ...account, ip, port, user, pass });
           });
 
           // Copy 2fa Button
@@ -366,6 +388,18 @@
             window.electronAPI.setupInstagram(account);
           });
 
+          // Get cookies Button
+          const getCookiesButton = document.createElement('button');
+          getCookiesButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-medium', 'py-2', 'px-4', 'rounded-lg', 'text-sm');
+          getCookiesButton.textContent = 'Get cookies';
+          getCookiesButton.addEventListener('click', async () => {
+            // Trigger Puppeteer get cookies for this account
+            const cookies = await window.electronAPI.getCookies(account);
+            // copy to clipboard
+            navigator.clipboard.writeText(JSON.stringify(cookies));
+            alert(`Cookies copied to clipboard :${cookies}`);
+          });
+
 
 
           const actionContainer = document.createElement('div');
@@ -379,6 +413,7 @@
           actionContainer.appendChild(loginButton);
           actionContainer.appendChild(viewHistoriesButton);
           actionContainer.appendChild(setupInstagramButton);
+          actionContainer.appendChild(getCookiesButton);
           actionContainer.appendChild(runButton);
           loginCell.appendChild(actionContainer);
           row.appendChild(loginCell);
