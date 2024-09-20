@@ -262,7 +262,11 @@
           loginButton.textContent = 'Login';
           loginButton.addEventListener('click', () => {
             // Trigger Puppeteer login for this account
-            window.electronAPI.login(account);
+            const ip = document.getElementById(`ip-${account.id}`).value || account.ip;
+            const port = document.getElementById(`port-${account.id}`).value || account.port;
+            const user = document.getElementById(`user-${account.id}`).value || account.user;
+            const pass = document.getElementById(`pass-${account.id}`).value || account.pass;
+            window.electronAPI.login({ ...account, ip, port, user, pass });
           });
 
           // Run Button
