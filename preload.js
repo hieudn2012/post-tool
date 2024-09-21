@@ -27,6 +27,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAccountConfig: (account) => ipcRenderer.invoke('get-account-config', account),
   setupInstagram: (account) => ipcRenderer.invoke('setup-instagram', account),
   getCookies: (account) => ipcRenderer.invoke('get-cookies', account),
+  importContents: () => ipcRenderer.invoke('import-contents'),
+  getGlobalState: async (key) => ipcRenderer.invoke('getGlobalState', key),
+  updateGlobalState: (key, value) => ipcRenderer.send('updateGlobalState', key, value),
+  adminLogin: (account) => ipcRenderer.invoke('admin-login', account),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

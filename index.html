@@ -50,6 +50,13 @@
         </div>
       </div>
 
+      <div class="mt-5">
+        <button id="import-contents"
+          class="transition hover:bg-blue-500 hover:text-white text-blue-500 border-2 border-blue-500 font-medium py-2 px-4 rounded-lg text-sm">
+          Import contents
+        </button>
+      </div>
+
       <div id="category-input-container" class="hidden">
         <div class="flex items-center gap-2 w-[400px] py-5">
           <input type="text" id="category-input" class="w-full p-2 border-2 border-gray-200 rounded-md"
@@ -145,15 +152,10 @@
       loginButton.addEventListener('click', async () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        if (username === 'admin' && password === 'admin') {
-          // hide auth screen by class
-          authScreen.classList.add('hidden');
-          mainScreen.classList.remove('hidden');
-          main();
-        } else {
-          alert('Invalid username or password');
-
-        }
+        await window.electronAPI.adminLogin({ username, password });
+        authScreen.classList.add('hidden');
+        mainScreen.classList.remove('hidden');
+        main();
       });
     }
 
@@ -546,6 +548,11 @@
         await window.electronAPI.importImages(category);
         alert('Images imported successfully');
         loadPostsByCaterogy();
+      });
+
+      // Import contents
+      document.getElementById('import-contents').addEventListener('click', async () => {
+        window.electronAPI.importContents();
       });
 
 

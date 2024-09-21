@@ -26,6 +26,9 @@ import { saveCookie } from './features/save-cookie.js';
 import { THREADS_LOGIN_URL } from './src/constants/common.js'
 import { setupInstagram } from './features/setup-instagram.js';
 import { getCookies } from './features/get-cookies.js';
+import { importContents } from './features/import-contents.js';
+import { adminLogin } from './features/admin-login.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -51,6 +54,16 @@ function createWindow() {
   // Open devtool to debug
   // mainWindow.webContents.openDevTools();
 }
+
+// Get global state from store
+ipcMain.handle('getGlobalState', (event, key) => {
+  return store.get(key);
+});
+
+// Update global state to store
+ipcMain.on('updateGlobalState', (event, key, value) => {
+  store.set(key, value);
+});
 
 ipcMain.handle('test', async (event, account) => {
   checkFolderPath({ window: mainWindow });
@@ -189,6 +202,16 @@ ipcMain.handle('setup-instagram', async (event, account) => {
 // Handle get cookies
 ipcMain.handle('get-cookies', async (event, account) => {
   return await getCookies({ account });
+});
+
+// Handle import contents from folder
+ipcMain.handle('import-contents', async (event) => {
+  importContents();
+});
+
+// Handle admin login
+ipcMain.handle('admin-login', async (event, account) => {
+  return await adminLogin(account);
 });
 
 app.whenReady().then(() => {
