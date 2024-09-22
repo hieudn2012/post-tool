@@ -74,11 +74,11 @@ ipcMain.handle('run-all', async (event, token) => {
       await sleep(runner.timeout);
     }
     await run({ event, runner: { ...runner, token }, browsers, pages, headless: true });
-    await sleep(3000);
   }
 
-  runners.forEach(({ accountId }) => {
+  runners.forEach(async ({ accountId }) => {
     runSingle({ accountId });
+    await sleep(3000);
   });
 });
 
