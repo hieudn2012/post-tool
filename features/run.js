@@ -30,12 +30,17 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
   const accountId = runner.accountId;
   const { _id: contentId, title, link } = runner.content;
 
-  await updateAccountMessage({ message: 'Running...', accountId, token });
 
   const totalBrowsers = Object.keys(browsers).length;
   if (totalBrowsers > 6) {
     // ranrom time to wait from 30s to 1m
+    updateAccountMessage({ message: 'Waiting...', accountId, token });
     await sleep(Math.floor(Math.random() * 30 + 30) * 1000);
+  }
+
+  // check browser is exist then close
+  if (browsers[accountId]) {
+    await closeBrowser({ runner, browsers });
   }
 
   await launchBrowser({
@@ -44,6 +49,8 @@ const run = async ({ event, runner, browsers, pages, headless }) => {
     browsers,
     withCookies: true,
   });
+
+  await updateAccountMessage({ message: 'Running...', accountId, token });
 
   try {
     const page = await openPage({
