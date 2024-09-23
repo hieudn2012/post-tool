@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   adminLogin: (data) => ipcRenderer.invoke('admin-login', data),
   run: (account) => ipcRenderer.invoke('run', account),
   stop: (account) => ipcRenderer.invoke('stop', account),
+  onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

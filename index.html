@@ -129,6 +129,14 @@
 
         accountTable.appendChild(tr);
       });
+
+      window.electronAPI.onActionResult((account) => {
+        const eventMessage = account.eventMessage;
+        const status = document.getElementById(`status-${account._id}`);
+        if (eventMessage) {
+          status.textContent = eventMessage;
+        }
+      });
     }
 
 

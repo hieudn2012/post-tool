@@ -23,7 +23,7 @@ function createWindow() {
   mainWindow.loadFile('index.html')
 
   // Open devtool to debug
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // handle admin login
   ipcMain.handle('admin-login', async (event, data) => {
@@ -38,12 +38,12 @@ function createWindow() {
 
   // handle run
   ipcMain.handle('run', async (event, account) => {
-    run(account);
+    run({ account, event });
   });
 
   // handle stop
   ipcMain.handle('stop', async (event, account) => {
-    stop(account);
+    stop({ account, event });
   });
 }
 
