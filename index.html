@@ -40,15 +40,15 @@
 
 
 
-  <div class="flex flex-col justify-between h-full min-h-screen" id="main-screen">
+  <div class="flex-col justify-between h-full min-h-screen hidden" id="main-screen">
     <div class="p-4 flex-1">
       <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
         <thead>
           <tr class="text-sm">
             <th>Index</th>
             <th>Account Info</th>
+            <th>Status</th>
             <th>Actions</th>
-            <th></th>
           </tr>
         </thead>
         <tbody id="account-table">
@@ -61,6 +61,78 @@
       <p class="text-center text-gray-400">Design by Oscar 2024</p>
     </div>
   </div>
+
+
+  <script>
+    const authScreen = document.getElementById('auth-screen');
+    const mainScreen = document.getElementById('main-screen');
+    const loginButton = document.getElementById('login-button');
+    const accountTable = document.getElementById('account-table');
+
+    // add event listener to login button
+    loginButton.addEventListener('click', async () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      await window.electronAPI.adminLogin({
+        username,
+        password
+      });
+
+      // add class hidden to auth screen
+      authScreen.classList.add('hidden');
+      mainScreen.classList.remove('hidden');
+      mainScreen.classList.add('flex');
+
+      main();
+    });
+
+
+
+    async function main() {
+      const accounts = await window.electronAPI.getAccounts();
+
+      accounts.forEach((account, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${account.account}</td>
+          <td id="status-${account._id}"></td>
+          <td>
+            <div class="flex gap-2">
+              <button class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="run-btn-${account._id}">
+                <i class="fa-solid fa-play"></i>
+              </button>
+              <button class="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="stop-btn-${account._id}">
+                <i class="fa-solid fa-stop"></i>
+              </button>
+            </div>
+          </td>
+        `;
+
+        // add event listener to run button
+        const runButton = tr.querySelector(`#run-btn-${account._id}`);
+        runButton.addEventListener('click', async () => {
+          const status = tr.querySelector(`#status-${account._id}`);
+          status.textContent = 'Running...';
+          await window.electronAPI.run(account);
+        });
+
+        // add event listener to stop button
+        const stopButton = tr.querySelector(`#stop-btn-${account._id}`);
+        stopButton.addEventListener('click', async () => {
+          const status = tr.querySelector(`#status-${account._id}`);
+          status.textContent = 'Stopped';
+          await window.electronAPI.stop(account);
+        });
+     
+
+        accountTable.appendChild(tr);
+      });
+    }
+
+
+  </script>
 
 
 
