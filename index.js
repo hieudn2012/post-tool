@@ -1,20 +1,12 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { adminLogin } from './features/admin-login.js';
-import { getRunnerDetails, listenAction } from './features/listen-action.js';
-import { getRunners } from './features/get-runners.js';
-import { run } from './features/run.js';
-import { sendEvent, sleep } from './features/common.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 let mainWindow;
-
-const browsers = {};
-const pages = {};
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -30,63 +22,6 @@ function createWindow() {
   // Open devtool to debug
   mainWindow.webContents.openDevTools();
 }
-
-// Handle admin login
-ipcMain.handle('admin-login', async (event, account) => {
-  return adminLogin(account);
-});
-
-// Handle get runners
-ipcMain.handle('get-runners', async (event, token) => {
-  return getRunners(token);
-});
-
-// Handle listen action
-ipcMain.handle('listen-action', async (event, data) => {
-  return listenAction({ data, browsers, pages, event });
-});
-
-// Handle run
-ipcMain.handle('run', async (event, { accountId, token }) => {
-  const runner = await getRunnerDetails({ accountId, token });
-  if (runner.error && !runner.timeout) {
-    return sendEvent({ event, runner: { accountId }, message: runner.error });
-  }
-  if (runner.timeout) {
-    await sendEvent({ event, runner: { accountId }, message: runner.error });
-    await sleep(runner.timeout);
-  }
-  await run({ event, runner: { ...runner, token }, browsers, pages, headless: true });
-});
-
-// Handle run
-ipcMain.handle('run-all', async (event, token) => {
-  console.log('run-all');
-  const runners = await getRunners(token);
-
-  const runSingle = async ({ accountId }) => {
-    const runner = await getRunnerDetails({ accountId, token });
-    if (runner.error && !runner.timeout) {
-      return sendEvent({ event, runner: { accountId }, message: runner.error });
-    }
-    if (runner.timeout) {
-      await sendEvent({ event, runner: { accountId }, message: runner.error });
-      await sleep(runner.timeout);
-    }
-    await run({ event, runner: { ...runner, token }, browsers, pages, headless: true });
-  }
-
-  runners.forEach(async ({ accountId }) => {
-    runSingle({ accountId });
-    await sleep(3000);
-  });
-});
-
-// Handle action result
-ipcMain.handle('action-result', async (event, data) => {
-  console.log(data, 'action-result');
-});
-
 
 app.whenReady().then(() => {
   createWindow()

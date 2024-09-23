@@ -19,6 +19,7 @@
 </head>
 
 <body>
+
   <div id="auth-screen">
     <div class="flex flex-col items-center justify-center gap-2 w-[400px] mx-auto h-screen">
       <div class="mb-5">
@@ -36,23 +37,17 @@
       </button>
     </div>
   </div>
+
+
+
   <div class="flex flex-col justify-between h-full min-h-screen" id="main-screen">
     <div class="p-4 flex-1">
-
-      <div>
-        <button id="run-all-button"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
-          <i class="fa-solid fa-play"></i>
-          <p>Run all</p>
-        </button>
-      </div>
       <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
         <thead>
           <tr class="text-sm">
             <th>Index</th>
-            <th>Account</th>
-            <th>Proxy</th>
-            <th>Status</th>
+            <th>Account Info</th>
+            <th>Actions</th>
             <th></th>
           </tr>
         </thead>
@@ -61,105 +56,14 @@
         </tbody>
       </table>
 
-
     </div>
     <div class="flex justify-center flex-shrink-0 p-4">
       <p class="text-center text-gray-400">Design by Oscar 2024</p>
     </div>
   </div>
 
-  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-  <script>
-    let token = ``;
-    const socket = io('wss://socialfly-be.fly.dev');
-
-    socket.on('action', async (data) => {
-      if (data.action === 'RUN') {
-        return window.electronAPI.run({ ...data, token });
-      }
-      window.electronAPI.listenAction({ ...data, token });
-    });
-
-    window.electronAPI.onActionResult((data) => {
-      socket.emit('update-status', data);
-      if (data.retry) {
-        window.electronAPI.run({ ...data, token });
-      }
-    });
 
 
-    function auth() {
-      const mainScreen = document.getElementById('main-screen');
-      const authScreen = document.getElementById('auth-screen');
-
-      // hide main screen by class
-      mainScreen.classList.add('hidden');
-
-      const loginButton = document.getElementById('login-button');
-      loginButton.addEventListener('click', async () => {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const accessToken = await window.electronAPI.adminLogin({ username, password });
-        if (accessToken) {
-          mainScreen.classList.remove('hidden');
-          authScreen.classList.add('hidden');
-          token = accessToken;
-          main();
-        } else {
-          alert('Login failed');
-        }
-      });
-    }
-
-    async function main() {
-      const runners = await window.electronAPI.getRunners(token);
-
-      const runAllButton = document.getElementById('run-all-button');
-      runAllButton.addEventListener('click', async () => {
-        window.electronAPI.runAll(token);
-      });
-
-      runners.map((runner, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${runner.accountId}</td>
-          <td>${runner.account.account}</td>
-          <td>${runner.proxy.ip} : ${runner.proxy.port}</td>
-          <td>-</td>
-          <td class="w-[300px]">
-            <div class="flex gap-2 flex-wrap">
-              <button class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
-                <i class="fa-solid fa-floppy-disk"></i>
-              </button>
-              
-              <button class="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
-                <i class="fa-solid fa-stop"></i>
-              </button>
-
-              <button class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
-                <i class="fa-solid fa-qrcode"></i>
-              </button>
-
-              <button class="bg-yellow-500 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
-                <i class="fa-solid fa-broom"></i>
-              </button>
-              
-              <button class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
-                <i class="fa-brands fa-instagram"></i>
-              </button>
-
-              <button class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
-                <i class="fa-solid fa-play"></i>
-              </button>
-            </div>
-          </td>
-        `;
-        document.getElementById('account-table').appendChild(tr);
-      });
-    }
-
-    auth();
-  </script>
 </body>
 
 </html>
