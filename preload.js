@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   runAll: (accounts) => ipcRenderer.invoke('run-all', accounts),
   stop: (account) => ipcRenderer.invoke('stop', account),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
+
+  // get images in root
+  getImages: () => ipcRenderer.invoke('get-images'), 
 });
 
 window.addEventListener('DOMContentLoaded', () => {

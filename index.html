@@ -65,6 +65,15 @@
       </table>
 
     </div>
+
+    <div>
+      <button
+        class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+        id="get-images">
+        <i class="fa-solid fa-play"></i>
+        <p>Get Images</p>
+      </button>
+    </div>
     <div class="flex justify-center flex-shrink-0 p-4">
       <p class="text-center text-gray-400">Design by Oscar 2024</p>
     </div>
@@ -150,6 +159,12 @@
       const runAllButton = document.getElementById('run-all-btn');
       runAllButton.addEventListener('click', async () => {
         window.electronAPI.runAll(accounts);
+      });
+
+      // get images button
+      const getImagesButton = document.getElementById('get-images');
+      getImagesButton.addEventListener('click', async () => {
+        window.electronAPI.getImages();
       });
     }
 

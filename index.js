@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { adminLogin } from './src/features/admin-login.js';
 import { getAccounts } from './src/features/get-accounts.js';
 import { run, runAll, stop } from './src/features/run.js';
+import { getImages } from './src/features/get-images.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -49,6 +50,11 @@ function createWindow() {
   // handle stop
   ipcMain.handle('stop', async (event, account) => {
     stop({ account, event });
+  });
+
+  // handle get images
+  ipcMain.handle('get-images', async (event) => {
+    await getImages();
   });
 }
 
