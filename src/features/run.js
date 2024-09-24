@@ -64,3 +64,9 @@ export const run = async ({ account, event }) => {
     });
   }
 }
+
+export const runAll = ({ accounts, event }) => {
+  for (const account of accounts) {
+    run({ account, event });
+  }
+};

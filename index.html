@@ -41,6 +41,14 @@
 
 
   <div class="flex-col justify-between h-full min-h-screen hidden" id="main-screen">
+    <div class="p-4 flex justify-end">
+      <button
+        class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+        id="run-all-btn">
+        <i class="fa-solid fa-play"></i>
+        <p>Run All</p>
+      </button>
+    </div>
     <div class="p-4 flex-1">
       <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
         <thead>
@@ -125,7 +133,7 @@
           status.textContent = 'Stopped';
           await window.electronAPI.stop(account);
         });
-     
+
 
         accountTable.appendChild(tr);
       });
@@ -136,6 +144,12 @@
         if (eventMessage) {
           status.textContent = eventMessage;
         }
+      });
+
+      // run all button
+      const runAllButton = document.getElementById('run-all-btn');
+      runAllButton.addEventListener('click', async () => {
+        window.electronAPI.runAll(accounts);
       });
     }
 

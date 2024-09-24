@@ -4,7 +4,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { adminLogin } from './src/features/admin-login.js';
 import { getAccounts } from './src/features/get-accounts.js';
-import { run, stop } from './src/features/run.js';
+import { run, runAll, stop } from './src/features/run.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -39,6 +39,11 @@ function createWindow() {
   // handle run
   ipcMain.handle('run', async (event, account) => {
     run({ account, event });
+  });
+
+  // handle run all
+  ipcMain.handle('run-all', async (event, accounts) => {
+    runAll({ accounts, event });
   });
 
   // handle stop

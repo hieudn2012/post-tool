@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAccounts: () => ipcRenderer.invoke('get-accounts'),
   adminLogin: (data) => ipcRenderer.invoke('admin-login', data),
   run: (account) => ipcRenderer.invoke('run', account),
+  runAll: (accounts) => ipcRenderer.invoke('run-all', accounts),
   stop: (account) => ipcRenderer.invoke('stop', account),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
 });
