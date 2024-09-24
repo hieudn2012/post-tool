@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import request from '../utils/request.js';
 
 export const getImages = async () => {
-  const path = `/Users/admin/Downloads/US CelebHunter oscar test/images`;
+  const path = `C:\Users\Administrator\Desktop\Admin TVP\images`;
 
 
   const images = fs.readdirSync(path);
