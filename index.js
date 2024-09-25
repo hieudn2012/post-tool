@@ -56,6 +56,12 @@ function createWindow() {
   ipcMain.handle('get-images', async (event) => {
     await getImages();
   });
+
+  // handle relaunch
+  ipcMain.handle('relaunch', async (event) => {
+    app.relaunch();
+    app.quit();
+  });
 }
 
 app.whenReady().then(() => {

@@ -23,7 +23,10 @@
   <div id="auth-screen">
     <div class="flex flex-col items-center justify-center gap-2 w-[400px] mx-auto h-screen">
       <div class="mb-5">
-        <h1 class="text-2xl font-bold">Auto login and post</h1>
+        <div class="flex justify-center mb-5">
+          <i class="fa-brands fa-facebook text-6xl text-blue-500"></i>
+        </div>
+        <h1 class="text-2xl font-bold">Post content on Threads.net</h1>
         <p class="text-gray-400 text-sm text-center">Please login to continue</p>
       </div>
       <input type="text" id="username" class="p-2 border-2 border-gray-200 rounded-md w-full"
@@ -41,7 +44,13 @@
 
 
   <div class="flex-col justify-between h-full min-h-screen hidden" id="main-screen">
-    <div class="p-4 flex justify-end">
+    <div class="p-4 flex gap-2 justify-end">
+      <button
+        class="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+        id="relaunch-btn">
+        <i class="fa-solid fa-refresh"></i>
+        <p>Relaunch</p>
+      </button>
       <button
         class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
         id="run-all-btn">
@@ -66,14 +75,14 @@
 
     </div>
 
-    <div>
+    <!-- <div>
       <button
         class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
         id="get-images">
         <i class="fa-solid fa-play"></i>
         <p>Get Images</p>
       </button>
-    </div>
+    </div> -->
     <div class="flex justify-center flex-shrink-0 p-4">
       <p class="text-center text-gray-400">Design by Oscar 2024</p>
     </div>
@@ -91,10 +100,27 @@
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
-      await window.electronAPI.adminLogin({
-        username,
-        password
-      });
+      // add loading spinner for login button
+      loginButton.innerHTML = `
+        <i class="fa-solid fa-spinner animate-spin"></i>
+        <p>Loading...</p>
+      `;
+      try {
+        await window.electronAPI.adminLogin({
+          username,
+          password
+        });
+      } catch (error) {
+        console.error(error);
+        alert('Login failed');
+
+        // remove loading spinner for login button
+        loginButton.innerHTML = `
+          <i class="fa-solid fa-user"></i>
+          <p>Login</p>
+        `;
+        return;
+      }
 
       // add class hidden to auth screen
       authScreen.classList.add('hidden');
@@ -162,11 +188,17 @@
       });
 
       // get images button
-      const getImagesButton = document.getElementById('get-images');
-      getImagesButton.addEventListener('click', async () => {
-        window.electronAPI.getImages();
-      });
+      //const getImagesButton = document.getElementById('get-images');
+      //getImagesButton.addEventListener('click', async () => {
+      //  window.electronAPI.getImages();
+      //});
     }
+
+    // relaunch button
+    const relaunchButton = document.getElementById('relaunch-btn');
+    relaunchButton.addEventListener('click', async () => {
+      await window.electronAPI.relaunch();
+    });
 
 
   </script>
