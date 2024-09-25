@@ -28,10 +28,11 @@ export const importContents = async () => {
   // get images name from the folder images
   const imageNames = images.map(image => {
     const [name] = image.split('.');
-    return Number(name);
+    // if Numner(name) is NaN, return name
+    return isNaN(Number(name)) ? name : Number(name);
   });
   // sort the images name
-  imageNames.sort((a, b) => a - b);
+  imageNames.sort();
 
   // change image name to postId
   posts.forEach((post, index) => {
