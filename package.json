@@ -10,6 +10,13 @@
     "electron:build-win": "electron-builder build --win --publish never",
     "electron:build-mac": "electron-builder build --mac --publish never"
   },
+  "build": {
+    "appId": "SocialFly",
+    "productName": "SocialFly",
+    "win": {
+      "icon": "assets/icons/app-icon.ico"
+    }
+  },
   "author": "",
   "license": "ISC",
   "description": "",
