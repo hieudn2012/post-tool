@@ -58,7 +58,7 @@ export async function openPage({ account, url, browsers, pages }) {
   if (cookies) {
     await page.setCookie(...JSON.parse(cookies));
   }
-  await page.goto(url);
+  await page.goto(url, { timeout: 60000 });
   pages[`${_id}_${url}`] = page;
   return page;
 }
