@@ -42,11 +42,11 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
     const img = await fetch(image);
     const buffer = await img.arrayBuffer();
     const bufferData = Buffer.from(buffer);
-    fs.writeFileSync(`${working_directory}/file_upload.png`, bufferData);
+    fs.writeFileSync(`${working_directory}/${_id}/file_upload.png`, bufferData);
 
     // find input with type = "file"
     const fileInput = await page.$('input[type="file"]');
-    await fileInput.uploadFile(`${working_directory}/file_upload.png`);
+    await fileInput.uploadFile(`${working_directory}/${_id}/file_upload.png`);
     await sleep(7000);
 
     // find p with class "xdj266r x11i5rnm xat24cr x1mh8g0r"
