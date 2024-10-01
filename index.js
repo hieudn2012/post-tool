@@ -49,7 +49,7 @@ function createWindow() {
   ipcMain.handle('run', async (event, account) => {
     const { data } = await request.post(`${API_URL}/accounts/check-run/${account._id}`);
     if (!data.canRun) {
-      sendEvent({ event, account: { ...account, eventMessage: `Waiting for next post ${account.account} timeout ${data.timeout / 1000 / 60} minutes` } });
+      sendEvent({ event, account: { ...account, eventMessage: `Waiting for next post ${account.account} timeout ${data.nextTime}` } });
       await sleep(data.timeout);
     }
     await run({ account, event, browsers, pages });
