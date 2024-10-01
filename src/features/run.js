@@ -79,6 +79,7 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
       accountId: _id,
       message: error?.message,
     });
+    await sendEvent({ event, account: { ...account, eventMessage: 'Error' } });
     console.log(`Error running account ${_id}: ${error.message}`);
   }
 }
