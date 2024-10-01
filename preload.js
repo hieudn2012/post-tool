@@ -2,12 +2,15 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Expose a limited API to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
-  login: (account) => ipcRenderer.invoke('login', account),
-  test: (account) => ipcRenderer.invoke('test', account),
+  getAccounts: () => ipcRenderer.invoke('get-accounts'),
+  adminLogin: (data) => ipcRenderer.invoke('admin-login', data),
   run: (account) => ipcRenderer.invoke('run', account),
-  updateStatus: (account) => ipcRenderer.invoke('update-status', account),
+  stop: (account) => ipcRenderer.invoke('stop', account),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
-  selectFolder: () => ipcRenderer.invoke('select-folder'),
+  relaunch: () => ipcRenderer.invoke('relaunch'),
+  openNewPage: (account) => ipcRenderer.invoke('open-new-page', account),
+  threadsLogin: (account) => ipcRenderer.invoke('threads-login', account),
+  saveCookies: (account) => ipcRenderer.invoke('save-cookies', account),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

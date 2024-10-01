@@ -5,170 +5,245 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Auto login and post</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
   <link rel="stylesheet" href="output.css">
 </head>
 
 <body>
-  <div class="p-4">
-    <div class="grid grid-cols-3 gap-4">
-      <div>
-        <input type="text" id="folder-input" class="w-full p-2 border-2 border-gray-200 rounded-md" readonly
-          placeholder="Select folder working on">
-        <button id="select-folder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg mt-2">
-          Select
-        </button>
+
+  <div id="auth-screen">
+    <div class="flex flex-col items-center justify-center gap-2 w-[400px] mx-auto h-screen">
+      <div class="mb-5">
+        <div class="flex justify-center mb-5">
+          <i class="fa-brands fa-facebook text-6xl text-blue-500"></i>
+        </div>
+        <h1 class="text-2xl font-bold">Post content on Threads.net</h1>
+        <p class="text-gray-400 text-sm text-center">Please login to continue</p>
       </div>
+      <input type="text" id="username" class="p-2 border-2 border-gray-200 rounded-md w-full"
+        placeholder="Enter username">
+      <input type="password" id="password" class="p-2 border-2 border-gray-200 rounded-md w-full"
+        placeholder="Enter password">
+      <button id="login-button"
+        class="w-full bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+        <i class="fa-solid fa-user"></i>
+        <p>Login</p>
+      </button>
     </div>
-    <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
-      <thead>
-        <tr>
-          <th>IP</th>
-          <th>Port</th>
-          <th>User</th>
-          <th>Account</th>
-          <th>Time post</th>
-          <th>Status</th>
-          <th>Latest post</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="accountTable">
-        <!-- Rows will be dynamically generated here -->
-      </tbody>
-    </table>
   </div>
 
+
+
+  <div class="flex-col justify-between h-full min-h-screen hidden" id="main-screen">
+    <div class="p-4 flex gap-2 justify-end">
+      <button
+        class="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+        id="relaunch-btn">
+        <i class="fa-solid fa-refresh"></i>
+        <p>Relaunch</p>
+      </button>
+
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+        id="reload-accounts">
+        <i class="fa-solid fa-sync"></i>
+        <p>Reload Accounts</p>
+      </button>
+
+      <button
+        class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+        id="run-all-btn">
+        <i class="fa-solid fa-play"></i>
+        <p>Run All</p>
+      </button>
+    </div>
+    <div class="p-4 flex-1">
+      <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
+        <thead>
+          <tr class="text-sm">
+            <th>Index</th>
+            <th>Account Info</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="account-table">
+          <!-- Rows will be dynamically generated here -->
+        </tbody>
+      </table>
+
+    </div>
+
+    <div class="flex justify-center flex-shrink-0 p-4">
+      <p class="text-center text-gray-400">Design by Oscar 2024</p>
+    </div>
+  </div>
+
+
   <script>
-    // Generate table rows dynamically
-    const tableBody = document.getElementById('accountTable');
+    const authScreen = document.getElementById('auth-screen');
+    const mainScreen = document.getElementById('main-screen');
+    const loginButton = document.getElementById('login-button');
+    const accountTable = document.getElementById('account-table');
 
-    function loadAccounts(accounts) {
-      // clear table
-      tableBody.innerHTML = '';
+    // add event listener to login button
+    loginButton.addEventListener('click', async () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-      accounts.forEach(account => {
-        const row = document.createElement('tr');
+      // add loading spinner for login button
+      loginButton.innerHTML = `
+        <i class="fa-solid fa-spinner animate-spin"></i>
+        <p>Loading...</p>
+      `;
+      try {
+        await window.electronAPI.adminLogin({
+          username,
+          password
+        });
+      } catch (error) {
+        console.error(error);
+        alert('Login failed');
 
-        // IP Column
-        const ipCell = document.createElement('td');
-        ipCell.textContent = account.ip;
-        row.appendChild(ipCell);
+        // remove loading spinner for login button
+        loginButton.innerHTML = `
+          <i class="fa-solid fa-user"></i>
+          <p>Login</p>
+        `;
+        return;
+      }
 
-        // Port Column
-        const portCell = document.createElement('td');
-        portCell.textContent = account.port;
-        row.appendChild(portCell);
+      // add class hidden to auth screen
+      authScreen.classList.add('hidden');
+      mainScreen.classList.remove('hidden');
+      mainScreen.classList.add('flex');
 
-        // User Column
-        const userCell = document.createElement('td');
-        userCell.textContent = account.user;
-        row.appendChild(userCell);
-
-        // Account Column
-        const accountCell = document.createElement('td');
-        accountCell.textContent = account.account;
-        row.appendChild(accountCell);
-
-        // Time post Column
-        const timePostCell = document.createElement('td');
-        // create an input element
-        const timePostInput = document.createElement('input');
-        timePostInput.setAttribute('type', 'number');
-        timePostInput.setAttribute('placeholder', 'Time post');
-        timePostInput.setAttribute('id', `time-post-${account.id}`);
-        // set default value
-        timePostInput.setAttribute('value', '0.5');
-        timePostInput.classList.add('w-full', 'p-2', 'border-2', 'border-gray-200', 'rounded-md');
-        timePostCell.appendChild(timePostInput);
-        row.appendChild(timePostCell);
-
-        // Status Column
-        const statusCell = document.createElement('td');
-        statusCell.textContent = 'Not logged in';
-        // add id to status cell
-        statusCell.setAttribute('id', `status-${account.id}`);
-        row.appendChild(statusCell);
-
-        // Latest post Column
-        const latestPostCell = document.createElement('td');
-        latestPostCell.setAttribute('id', `latest-post-${account.id}`);
-        row.appendChild(latestPostCell);
+      main();
+    });
 
 
-        // Login Button Column
-        const loginCell = document.createElement('td');
-        const loginButton = document.createElement('button');
-        loginButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
-        loginButton.textContent = 'Login';
-        loginButton.addEventListener('click', () => {
-          // Trigger Puppeteer login for this account
-          window.electronAPI.login(account);
+
+    async function main() {
+      const accounts = await window.electronAPI.getAccounts();
+
+      accountTable.innerHTML = '';
+
+      accounts.forEach((account, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>
+            <div>
+              <p>${account.account}</p>
+              <p>${account.proxy.ip}:${account.proxy.port}</p>
+            </div>
+          </td>
+          <td id="status-${account._id}"></td>
+          <td>
+            <div class="flex gap-2">
+              <button class="text-sm bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="open-btn-${account._id}">
+                <i class="fa-solid fa-globe"></i>
+                Open browser
+              </button>
+              
+              <button class="text-sm bg-yellow-500 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="save-cookies-btn-${account._id}">
+                <i class="fa-solid fa-cookie-bite"></i>
+                Save cookies
+              </button>
+
+              <button class="text-sm bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="login-btn-${account._id}">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Login and save cookies
+              </button>
+
+              <button class="text-sm bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="run-btn-${account._id}">
+                <i class="fa-solid fa-play"></i>
+                Run
+              </button>
+
+              <button class="text-sm bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="stop-btn-${account._id}">
+                <i class="fa-solid fa-stop"></i>
+                Stop
+              </button>
+            </div>
+          </td>
+        `;
+        accountTable.appendChild(tr);
+
+        // add event listener to open button
+        const openButton = document.getElementById(`open-btn-${account._id}`);
+        openButton.addEventListener('click', async () => {
+          await window.electronAPI.openNewPage(account);
         });
 
-        // Run Button
-        const runButton = document.createElement('button');
-        runButton.setAttribute('id', `run-${account.id}`);
-        runButton.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
-        runButton.textContent = 'Run';
-        runButton.addEventListener('click', () => {
-          // Trigger Puppeteer run for this account
-          const timePost = document.getElementById(`time-post-${account.id}`).value;
-          window.electronAPI.run({ ...account, timePost: Number(timePost) });
+        // add event listener to stop button
+        const stopButton = document.getElementById(`stop-btn-${account._id}`);
+        stopButton.addEventListener('click', async () => {
+          await window.electronAPI.stop(account);
         });
 
-        // Test Button
-        const testButton = document.createElement('button');
-        testButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
-        testButton.textContent = 'Test';
-        testButton.addEventListener('click', () => {
-          // Trigger Puppeteer test for this account
-          window.electronAPI.test(account);
+        // add event listener to login button
+        const loginButton = document.getElementById(`login-btn-${account._id}`);
+        loginButton.addEventListener('click', async () => {
+          await window.electronAPI.threadsLogin(account);
         });
 
-        // Stop Button
-        const stopButton = document.createElement('button');
-        stopButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
-        stopButton.textContent = 'Stop';
-        stopButton.addEventListener('click', () => {
-          // Trigger Puppeteer stop for this account
-          window.electronAPI.stop(account);
+        // add event listener to save cookies button
+        const saveCookiesButton = document.getElementById(`save-cookies-btn-${account._id}`);
+        saveCookiesButton.addEventListener('click', async () => {
+          await window.electronAPI.saveCookies(account);
         });
 
-        const actionContainer = document.createElement('div');
-        actionContainer.classList.add('flex', 'gap-2');
-        actionContainer.appendChild(testButton);
-        actionContainer.appendChild(loginButton);
-        actionContainer.appendChild(runButton);
-        loginCell.appendChild(actionContainer);
-        row.appendChild(loginCell);
+        // add event listener to run button
+        const runButton = document.getElementById(`run-btn-${account._id}`);
+        if (!account.isReady) {
+          runButton.disabled = true;
+          runButton.style.opacity = 0.5;
+        }
 
-        tableBody.appendChild(row);
+        runButton.addEventListener('click', async () => {
+          await window.electronAPI.run(account);
+        });
+      });
+
+      window.electronAPI.onActionResult(async (account) => {
+        const eventMessage = account.eventMessage;
+        const status = document.getElementById(`status-${account._id}`);
+        if (eventMessage) {
+          status.textContent = eventMessage;
+        }
+        if (account.isNewRound) {
+          await window.electronAPI.run(account);
+        }
       });
     }
 
-    // Listen for the result and update the DOM
-    window.electronAPI.onActionResult((account) => {
-      const statusCell = document.getElementById(`status-${account.id}`);
-      statusCell.textContent = account.status;
-
-      const runButton = document.getElementById(`run-${account.id}`);
-
-      if (account.latestPost) {
-        const latestPostCell = document.getElementById(`latest-post-${account.id}`);
-        latestPostCell.textContent = account.latestPost.date;
-      }
-
-      if (account.retry || account.isNewRound) {
-        runButton.click();
-      }
+    // relaunch button
+    const relaunchButton = document.getElementById('relaunch-btn');
+    relaunchButton.addEventListener('click', async () => {
+      await window.electronAPI.relaunch();
     });
 
-    document.getElementById('select-folder').addEventListener('click', async () => {
-      const { path, accounts } = await window.electronAPI.selectFolder();
-      document.getElementById('folder-input').value = path;
-      loadAccounts(accounts);
+    // reload accounts button
+    const reloadAccountsButton = document.getElementById('reload-accounts');
+    reloadAccountsButton.addEventListener('click', async () => {
+      main();
     });
+
+
   </script>
+
+
+
 </body>
 
 </html>
