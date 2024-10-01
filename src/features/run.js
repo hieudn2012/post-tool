@@ -42,6 +42,10 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
     const img = await fetch(image);
     const buffer = await img.arrayBuffer();
     const bufferData = Buffer.from(buffer);
+
+    if (!fs.existsSync(`${working_directory}/${_id}`)) {
+      fs.mkdirSync(`${working_directory}/${_id}`);
+    }
     fs.writeFileSync(`${working_directory}/${_id}/file_upload.png`, bufferData);
 
     // find input with type = "file"
