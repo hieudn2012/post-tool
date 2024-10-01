@@ -26,7 +26,7 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
   }
 
   try {
-    await launchBrowser({ account, headless: false, browsers });
+    await launchBrowser({ account, headless: true, browsers });
     const page = await openPage({ account, url: THREADS_LOGIN_URL, browsers, pages });
     await sleep(5000);
 
