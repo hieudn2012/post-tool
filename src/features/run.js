@@ -33,7 +33,7 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
     const postButton = await page.$('div.xc26acl.x6s0dn4.x78zum5.xl56j7k.x6ikm8r.x10wlt62.x1swvt13.x1pi30zi.xlyipyv.xp07o12');
     await postButton.click();
     await sendEvent({ event, account: { ...account, eventMessage: 'Finding post button...' } });
-    await sleep(7000);
+    await sleep(10000);
 
     const { data } = await request.get(`${API_URL}/accounts/${_id}/content-for-run`);
     const { postContent, _id: content_id, image, working_directory } = data;
@@ -52,7 +52,7 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
     const fileInput = await page.$('input[type="file"]');
     await fileInput.uploadFile(`${working_directory}/${_id}/file_upload.png`);
     await sendEvent({ event, account: { ...account, eventMessage: 'Finding image upload...' } });
-    await sleep(7000);
+    await sleep(10000);
 
     // find p with class "xdj266r x11i5rnm xat24cr x1mh8g0r"
     const postText = await page.$('p.xdj266r.x11i5rnm.xat24cr.x1mh8g0r');
@@ -69,7 +69,7 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
     await page.keyboard.press('Tab');
     await page.keyboard.press('Enter');
     await sendEvent({ event, account: { ...account, eventMessage: 'Submiting...' } });
-    await sleep(5000);
+    await sleep(10000);
 
 
     await request.post(`${API_URL}/history`, {
