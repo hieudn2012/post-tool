@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openNewPage: (account) => ipcRenderer.invoke('open-new-page', account),
   threadsLogin: (account) => ipcRenderer.invoke('threads-login', account),
   saveCookies: (account) => ipcRenderer.invoke('save-cookies', account),
+  getStatuses: () => ipcRenderer.invoke('get-statuses'),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

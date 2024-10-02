@@ -134,6 +134,7 @@
 
     async function main() {
       const accounts = await window.electronAPI.getAccounts();
+      const statuses = await window.electronAPI.getStatuses();
 
       accountTable.innerHTML = '';
 
@@ -147,7 +148,9 @@
               <p>${account.proxy.ip}:${account.proxy.port}</p>
             </div>
           </td>
-          <td id="status-${account._id}"></td>
+          <td id="status-${account._id}">
+            ${statuses[account._id] || 'Ready'}
+          </td>
           <td>
             <div class="flex gap-2">
               <button class="text-sm bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="open-btn-${account._id}">

@@ -14,10 +14,11 @@ export const stop = async ({ account, browsers }) => {
   }
 }
 
-export const run = async ({ account = {}, event, browsers, pages }) => {
-  await sendEvent({ event, account: { ...account, eventMessage: 'Running...' } });
-
+export const run = async ({ account = {}, event, browsers, pages, statuses }) => {
   const { _id } = account;
+
+  await sendEvent({ event, account: { ...account, eventMessage: 'Running...' } });
+  statuses[account._id] = 'Running...';
 
   if (browsers[_id]) {
     console.log(`Account ${_id} is already running.`);
@@ -33,6 +34,7 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
     const postButton = await page.$('div.xc26acl.x6s0dn4.x78zum5.xl56j7k.x6ikm8r.x10wlt62.x1swvt13.x1pi30zi.xlyipyv.xp07o12');
     await postButton.click();
     await sendEvent({ event, account: { ...account, eventMessage: 'Finding post button...' } });
+    statuses[_id] = 'Finding post button...';
     await sleep(10000);
 
     const { data } = await request.get(`${API_URL}/accounts/${_id}/content-for-run`);
@@ -52,6 +54,7 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
     const fileInput = await page.$('input[type="file"]');
     await fileInput.uploadFile(`${working_directory}/${_id}/file_upload.png`);
     await sendEvent({ event, account: { ...account, eventMessage: 'Finding image upload...' } });
+    statuses[_id] = 'Finding image upload...';
     await sleep(10000);
 
     // find p with class "xdj266r x11i5rnm xat24cr x1mh8g0r"
@@ -69,6 +72,7 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
     await page.keyboard.press('Tab');
     await page.keyboard.press('Enter');
     await sendEvent({ event, account: { ...account, eventMessage: 'Submiting...' } });
+    statuses[_id] = 'Submiting...';
     await sleep(10000);
 
 
@@ -80,12 +84,14 @@ export const run = async ({ account = {}, event, browsers, pages }) => {
 
     await closeBrowser({ account, browsers });
     await sendEvent({ event, account: { ...account, eventMessage: 'New round!', isNewRound: true } });
+    statuses[_id] = 'New round!';
   } catch (error) {
     await request.post(`${API_URL}/errors`, {
       accountId: _id,
       message: error?.message,
     });
     await sendEvent({ event, account: { ...account, eventMessage: 'Error' } });
+    statuses[_id] = 'Error';
     console.log(`Error running account ${_id}: ${error.message}`);
   }
 }

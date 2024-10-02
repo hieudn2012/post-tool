@@ -19,6 +19,7 @@ let mainWindow;
 
 const browsers = {};
 const pages = {};
+const statuses = {};
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -52,7 +53,7 @@ function createWindow() {
       await sendEvent({ event, account: { ...account, eventMessage: `Waiting for next post ${account.account}...` } });
       await sleep(data.timeout);
     }
-    await run({ account, event, browsers, pages });
+    await run({ account, event, browsers, pages, statuses });
   });
 
   // handle stop
@@ -79,6 +80,11 @@ function createWindow() {
   // handle save cookies
   ipcMain.handle('save-cookies', async (event, account) => {
     saveCookies({ account, browsers, pages });
+  });
+
+  // handle get statuses
+  ipcMain.handle('get-statuses', async (event) => {
+    return statuses;
   });
 }
 
