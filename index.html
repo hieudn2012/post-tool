@@ -222,7 +222,7 @@
           status.textContent = eventMessage;
         }
         if (account.isNewRound) {
-          await window.electronAPI.run(account);
+          await window.electronAPI.run({ ...account, isNewRound: false });
         }
       });
     }
