@@ -86,6 +86,7 @@ export const run = async ({ account = {}, event, browsers, pages, statuses }) =>
     await sendEvent({ event, account: { ...account, eventMessage: 'New round!', isNewRound: true } });
     statuses[_id] = 'New round!';
   } catch (error) {
+    await closeBrowser({ account, browsers });
     await request.post(`${API_URL}/errors`, {
       accountId: _id,
       message: error?.message,
