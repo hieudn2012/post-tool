@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "update": "git pull origin master",
+    "update": "git pull origin beta-v3",
     "start": "electron .",
     "build:css": "npx tailwindcss -i ./styles.css -o ./output.css && electron .",
     "electron:build-win": "electron-builder build --win --publish never",
