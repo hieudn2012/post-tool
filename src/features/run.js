@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { API_URL, THREADS_LOGIN_URL } from "../constants/common.js";
 import { closeBrowser, launchBrowser, openPage, sendEvent, sleep } from "../utils/common.js";
 import request from "../utils/request.js";
@@ -25,6 +26,12 @@ export const run = async ({ account = {}, event, browsers, pages, statuses }) =>
     return;
   }
 
+  while (_.size(browsers) > 4) {
+    sendEvent({ event, account: { ...account, eventMessage: 'Running > 5, Waiting for 30s...' } });
+    statuses[_id] = 'Running > 5, Waiting for 30s...';
+    await sleep(30000);
+  }
+
   try {
     await launchBrowser({ account, headless: true, browsers });
     const page = await openPage({ account, url: THREADS_LOGIN_URL, browsers, pages });
@@ -48,14 +55,21 @@ export const run = async ({ account = {}, event, browsers, pages, statuses }) =>
     if (!fs.existsSync(`${working_directory}/${_id}`)) {
       fs.mkdirSync(`${working_directory}/${_id}`);
     }
-    fs.writeFileSync(`${working_directory}/${_id}/file_upload.png`, bufferData);
+
+    // create random file name
+    const fileName = Math.random().toString(36).substring(7);
+
+    fs.writeFileSync(`${working_directory}/${_id}/${fileName}.png`, bufferData);
 
     // find input with type = "file"
     const fileInput = await page.$('input[type="file"]');
-    await fileInput.uploadFile(`${working_directory}/${_id}/file_upload.png`);
+    await fileInput.uploadFile(`${working_directory}/${_id}/${fileName}.png`);
     await sendEvent({ event, account: { ...account, eventMessage: 'Finding image upload...' } });
     statuses[_id] = 'Finding image upload...';
     await sleep(10000);
+
+    // after upload image then delete it
+    fs.unlinkSync(`${working_directory}/${_id}/${fileName}.png`);
 
     // find p with class "xdj266r x11i5rnm xat24cr x1mh8g0r"
     const postText = await page.$('p.xdj266r.x11i5rnm.xat24cr.x1mh8g0r');
