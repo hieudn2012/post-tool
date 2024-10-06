@@ -11,6 +11,7 @@ import { saveCookies } from './src/features/save-cookies.js';
 import request from './src/utils/request.js';
 import { API_URL } from './src/constants/common.js';
 import { sendEvent, sleep } from './src/utils/common.js';
+import { instagramLogin } from './src/features/instagram-login.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -85,6 +86,11 @@ function createWindow() {
   // handle get statuses
   ipcMain.handle('get-statuses', async (event) => {
     return statuses;
+  });
+
+  // instagram login
+  ipcMain.handle('instagram-login', async (event, account) => {
+    await instagramLogin({ account, browsers, pages });
   });
 }
 

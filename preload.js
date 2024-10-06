@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   threadsLogin: (account) => ipcRenderer.invoke('threads-login', account),
   saveCookies: (account) => ipcRenderer.invoke('save-cookies', account),
   getStatuses: () => ipcRenderer.invoke('get-statuses'),
+  instagramLogin: (account) => ipcRenderer.invoke('instagram-login', account),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

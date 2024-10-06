@@ -56,14 +56,7 @@
         class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
         id="reload-accounts">
         <i class="fa-solid fa-sync"></i>
-        <p>Reload Accounts</p>
-      </button>
-
-      <button
-        class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="run-all-btn">
-        <i class="fa-solid fa-play"></i>
-        <p>Run All</p>
+        <p>Refresh Accounts</p>
       </button>
     </div>
     <div class="p-4 flex-1">
@@ -168,6 +161,11 @@
                 Login and save cookies
               </button>
 
+              <button class="text-sm bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="instagram-btn-${account._id}">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Instagram Login
+              </button>
+
               <button class="text-sm bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="run-btn-${account._id}">
                 <i class="fa-solid fa-play"></i>
                 Run
@@ -212,6 +210,12 @@
           runButton.disabled = true;
           runButton.style.opacity = 0.5;
         }
+
+        // add event listener to instagram login button
+        const instagramButton = document.getElementById(`instagram-btn-${account._id}`);
+        instagramButton.addEventListener('click', async () => {
+          await window.electronAPI.instagramLogin(account);
+        });
 
         runButton.addEventListener('click', async () => {
           await window.electronAPI.run(account);
