@@ -65,6 +65,13 @@
           <i class="fa-solid fa-sync"></i>
           <p>Refresh Accounts</p>
         </button>
+
+        <button
+          class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="run-all-btn">
+          <i class="fa-solid fa-play"></i>
+          <p>Run All</p>
+        </button>
       </div>
     </div>
     <div class="p-4 flex-1">
@@ -228,6 +235,17 @@
         });
       });
 
+      // run all button
+      const runAllButton = document.getElementById('run-all-btn');
+      runAllButton.addEventListener('click', async () => {
+        for (const account of accounts) {
+          window.electronAPI.run(account);
+          await new Promise((resolve) => {
+            setTimeout(resolve, 500);
+          });
+        }
+      });
+
       window.electronAPI.onActionResult(async (account) => {
         const eventMessage = account.eventMessage;
         const status = document.getElementById(`status-${account._id}`);
@@ -257,8 +275,6 @@
     reloadAccountsButton.addEventListener('click', async () => {
       main();
     });
-
-
   </script>
 
 
