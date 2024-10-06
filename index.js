@@ -42,8 +42,8 @@ function createWindow() {
   });
 
   // handle get accounts
-  ipcMain.handle('get-accounts', async (event) => {
-    const accounts = await getAccounts();
+  ipcMain.handle('get-accounts', async (event, status) => {
+    const accounts = await getAccounts(status);
     return accounts;
   });
 

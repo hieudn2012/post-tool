@@ -44,20 +44,28 @@
 
 
   <div class="flex-col justify-between h-full min-h-screen hidden" id="main-screen">
-    <div class="p-4 flex gap-2 justify-end">
-      <button
-        class="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="relaunch-btn">
-        <i class="fa-solid fa-refresh"></i>
-        <p>Relaunch</p>
-      </button>
+    <div class="p-4 flex gap-2 justify-between">
+      <div>
+        <select class="p-2 border-2 border-gray-200 rounded-md" id="status-select">
+          <option value="ready_for_run" selected>Ready for run</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+      <div class="flex gap-2">
+        <button
+          class="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="relaunch-btn">
+          <i class="fa-solid fa-refresh"></i>
+          <p>Relaunch</p>
+        </button>
 
-      <button
-        class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="reload-accounts">
-        <i class="fa-solid fa-sync"></i>
-        <p>Refresh Accounts</p>
-      </button>
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="reload-accounts">
+          <i class="fa-solid fa-sync"></i>
+          <p>Refresh Accounts</p>
+        </button>
+      </div>
     </div>
     <div class="p-4 flex-1">
       <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
@@ -126,7 +134,10 @@
 
 
     async function main() {
-      const accounts = await window.electronAPI.getAccounts();
+      const statusSelect = document.getElementById('status-select');
+      const statusValue = statusSelect.value;
+
+      const accounts = await window.electronAPI.getAccounts(statusValue);
       const statuses = await window.electronAPI.getStatuses();
 
       accountTable.innerHTML = '';
@@ -145,7 +156,7 @@
             ${statuses[account._id] || 'Ready'}
           </td>
           <td>
-            <div class="flex gap-2">
+            <div class="flex gap-2 max-w-[400px] flex-wrap">
               <button class="text-sm bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="open-btn-${account._id}">
                 <i class="fa-solid fa-globe"></i>
                 Open browser
@@ -156,13 +167,13 @@
                 Save cookies
               </button>
 
-              <button class="text-sm bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="login-btn-${account._id}">
+              <button class="text-sm bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="login-btn-${account._id}">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 Login and save cookies
               </button>
 
-              <button class="text-sm bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="instagram-btn-${account._id}">
-                <i class="fa-solid fa-right-to-bracket"></i>
+              <button class="text-sm bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-medium py-2 px-4 rounded-lg hover:shadow-lg transition duration-300" id="instagram-btn-${account._id}">
+                <i class="fa-brands fa-instagram"></i>
                 Instagram Login
               </button>
 
@@ -204,19 +215,14 @@
           await window.electronAPI.saveCookies(account);
         });
 
-        // add event listener to run button
-        const runButton = document.getElementById(`run-btn-${account._id}`);
-        if (!account.isReady) {
-          runButton.disabled = true;
-          runButton.style.opacity = 0.5;
-        }
-
         // add event listener to instagram login button
         const instagramButton = document.getElementById(`instagram-btn-${account._id}`);
         instagramButton.addEventListener('click', async () => {
           await window.electronAPI.instagramLogin(account);
         });
 
+        // add event listener to run button
+        const runButton = document.getElementById(`run-btn-${account._id}`);
         runButton.addEventListener('click', async () => {
           await window.electronAPI.run(account);
         });
@@ -233,6 +239,12 @@
         }
       });
     }
+
+    // on change status select
+    const statusSelect = document.getElementById('status-select');
+    statusSelect.addEventListener('change', () => {
+      main();
+    });
 
     // relaunch button
     const relaunchButton = document.getElementById('relaunch-btn');
