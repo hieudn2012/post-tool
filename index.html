@@ -242,7 +242,7 @@
         for (const account of accounts) {
           window.electronAPI.run(account);
           await new Promise((resolve) => {
-            setTimeout(resolve, 500);
+            setTimeout(resolve, 2000);
           });
         }
       });
