@@ -44,16 +44,6 @@ export async function openPage({ account, url, browsers, pages }) {
   }
   const page = await browser.newPage();
 
-  // Chặn tải ảnh và video
-  await page.setRequestInterception(true);
-  page.on('request', (request) => {
-    if (['image', 'svg', 'media', 'stylesheet', 'font'].includes(request.resourceType())) {
-      request.abort();  // Hủy các yêu cầu không cần thiết
-    } else {
-      request.continue();
-    }
-  });
-
   await page.authenticate({
     username: user,
     password: pass
