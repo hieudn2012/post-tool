@@ -45,7 +45,7 @@ export const run = async ({ account = {}, event, browsers, pages, statuses }) =>
     await sleep(10000);
 
     const { data } = await request.get(`${API_URL}/accounts/${_id}/content-for-run`);
-    const { postContent, _id: content_id, image, working_directory } = data;
+    const { postContent, _id: content_id, image, working_directory, category } = data;
 
     // download image and upload to file input
     const img = await fetch(image);
@@ -93,6 +93,7 @@ export const run = async ({ account = {}, event, browsers, pages, statuses }) =>
     await request.post(`${API_URL}/history`, {
       content_id: content_id,
       account_id: _id,
+      category_id: category,
     });
     await sleep(5000);
 
