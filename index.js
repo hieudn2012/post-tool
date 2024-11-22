@@ -1,31 +1,23 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { adminLogin } from './src/features/admin-login.js';
-import { getAccounts } from './src/features/get-accounts.js';
-import { run, stop } from './src/features/run.js';
-import { openNewPage } from './src/features/open-new-page.js';
-import { threadsLogin } from './src/features/threads-login.js';
-import { saveCookies } from './src/features/save-cookies.js';
-import request from './src/utils/request.js';
-import { API_URL } from './src/constants/common.js';
-import { sendEvent, sleep } from './src/utils/common.js';
-import { instagramLogin } from './src/features/instagram-login.js';
+import { getProfile } from './src/new-feature/get-profile.js';
+import { run } from './src/new-feature/run.js';
+import { openRandomFolder } from './src/new-feature/open-random-folder.js';
+import { assignRandomIdToPost, copyRandomCaption, createEmptyFolder, deleteEmptyFolder, openEmptyFolder } from './src/new-feature/common.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 let mainWindow;
 
-const browsers = {};
-const pages = {};
-const statuses = {};
+const globalPath = `/Users/admin/Desktop/aaa`;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 860,
+    width: 300,
+    height: 800,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
     }
@@ -33,64 +25,68 @@ function createWindow() {
 
   mainWindow.loadFile('index.html')
 
+
   // Open devtool to debug
   // mainWindow.webContents.openDevTools();
 
-  // handle admin login
-  ipcMain.handle('admin-login', async (event, data) => {
-    await adminLogin(data);
+  // get profiles
+  ipcMain.handle('get-profiles', async (event) => {
+    return await getProfile();
   });
 
-  // handle get accounts
-  ipcMain.handle('get-accounts', async (event, status) => {
-    const accounts = await getAccounts(status);
-    return accounts;
+  // run
+  ipcMain.handle('run', async (event, userId) => {
+    return await run(userId);
   });
 
-  // handle run
-  ipcMain.handle('run', async (event, account) => {
-    const { data } = await request.post(`${API_URL}/accounts/check-run/${account._id}/${account.category}`);
-    if (!data.canRun) {
-      await sendEvent({ event, account: { ...account, eventMessage: `Waiting for next post ${account.account}...` } });
-      await sleep(data.timeout);
-    }
-    await run({ account, event, browsers, pages, statuses });
+  // open random folder
+  ipcMain.handle('open-random-folder', async (event, path) => {
+    return openRandomFolder(path);
   });
 
-  // handle stop
-  ipcMain.handle('stop', async (event, account) => {
-    stop({ account, browsers });
+  // copy random caption
+  ipcMain.handle('copy-random-caption', async (event) => {
+    return copyRandomCaption(event);
   });
 
-  // handle relaunch
-  ipcMain.handle('relaunch', async (event) => {
-    app.relaunch();
-    app.quit();
+  // create empty folder
+  ipcMain.handle('create-empty-folder', async (event, path) => {
+    return createEmptyFolder(path);
   });
 
-  // handle open new page
-  ipcMain.handle('open-new-page', async (event, account) => {
-    openNewPage({ account, browsers, pages });
+  // delete empty folder
+  ipcMain.handle('delete-empty-folder', async (event, path) => {
+    return deleteEmptyFolder(path);
   });
 
-  // handle threads login
-  ipcMain.handle('threads-login', async (event, account) => {
-    threadsLogin({ account, browsers, pages });
+  // Open empty folder
+  ipcMain.handle('open-empty-folder', async (event, path) => {
+    return openEmptyFolder(path);
   });
 
-  // handle save cookies
-  ipcMain.handle('save-cookies', async (event, account) => {
-    saveCookies({ account, browsers, pages });
+  // Assign random id to post
+  ipcMain.handle('assign-random-id-to-post', async (event, url) => {
+    return assignRandomIdToPost(url, event);
   });
 
-  // handle get statuses
-  ipcMain.handle('get-statuses', async (event) => {
-    return statuses;
+  // Đăng ký tổ hợp phím Ctrl+Shift+C
+  globalShortcut.register('Ctrl+Shift+Z', () => {
+    return openRandomFolder(globalPath);
   });
 
-  // instagram login
-  ipcMain.handle('instagram-login', async (event, account) => {
-    await instagramLogin({ account, browsers, pages });
+  // Đăng ký tổ hợp phím Ctrl+Shift+X
+  globalShortcut.register('Ctrl+Shift+X', (event) => {
+    return copyRandomCaption(event);
+  });
+
+  // Đăng ký tổ hợp phím Ctrl+Shift+V
+  globalShortcut.register('Ctrl+Shift+V', () => {
+    return createEmptyFolder(globalPath);
+  });
+
+  // Đăng ký tổ hợp phím Ctrl+Shift+V
+  globalShortcut.register('Ctrl+Shift+D', () => {
+    return deleteEmptyFolder(globalPath);
   });
 }
 
@@ -108,3 +104,8 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+app.on('will-quit', () => {
+  // Hủy đăng ký tổ hợp phím khi ứng dụng đóng
+  globalShortcut.unregisterAll();
+});

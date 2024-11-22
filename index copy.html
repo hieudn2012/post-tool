@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto login and post</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
+  <link rel="stylesheet" href="output.css">
+</head>
+
+<body>
+
+  <div id="auth-screen">
+    <div class="flex flex-col items-center justify-center gap-2 w-[400px] mx-auto h-screen">
+      <div class="mb-5">
+        <div class="flex justify-center mb-5">
+          <i class="fa-brands fa-facebook text-6xl text-blue-500"></i>
+        </div>
+        <h1 class="text-2xl font-bold">Post content on Threads.net</h1>
+        <p class="text-gray-400 text-sm text-center">Please login to continue</p>
+      </div>
+      <input type="text" id="username" class="p-2 border-2 border-gray-200 rounded-md w-full"
+        placeholder="Enter username">
+      <input type="password" id="password" class="p-2 border-2 border-gray-200 rounded-md w-full"
+        placeholder="Enter password">
+      <button id="login-button"
+        class="w-full bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center">
+        <i class="fa-solid fa-user"></i>
+        <p>Login</p>
+      </button>
+    </div>
+  </div>
+
+
+
+  <div class="flex-col justify-between h-full min-h-screen hidden" id="main-screen">
+    <div class="p-4 flex gap-2 justify-between">
+      <div>
+        <select class="p-2 border-2 border-gray-200 rounded-md" id="status-select">
+          <option value="ready_for_run" selected>Ready for run</option>
+          <option value="pending">Pending</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </div>
+      <div class="flex gap-2">
+        <button
+          class="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="relaunch-btn">
+          <i class="fa-solid fa-refresh"></i>
+          <p>Relaunch</p>
+        </button>
+
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="reload-accounts">
+          <i class="fa-solid fa-sync"></i>
+          <p>Refresh Accounts</p>
+        </button>
+
+        <button
+          class="bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="run-all-btn">
+          <i class="fa-solid fa-play"></i>
+          <p>Run All</p>
+        </button>
+      </div>
+    </div>
+    <div class="p-4 flex-1">
+      <table class="w-full text-left border-collapse [&_td]:border [&_td]:p-4 [&_th]:border [&_th]:p-4 mt-5">
+        <thead>
+          <tr class="text-sm">
+            <th>Index</th>
+            <th>Account Info</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="account-table">
+          <!-- Rows will be dynamically generated here -->
+        </tbody>
+      </table>
+
+    </div>
+
+    <div class="flex justify-center flex-shrink-0 p-4">
+      <p class="text-center text-gray-400">Design by Oscar 2024</p>
+    </div>
+  </div>
+
+
+  <script>
+    const authScreen = document.getElementById('auth-screen');
+    const mainScreen = document.getElementById('main-screen');
+    const loginButton = document.getElementById('login-button');
+    const accountTable = document.getElementById('account-table');
+
+    // add event listener to login button
+    loginButton.addEventListener('click', async () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // add loading spinner for login button
+      loginButton.innerHTML = `
+        <i class="fa-solid fa-spinner animate-spin"></i>
+        <p>Loading...</p>
+      `;
+      try {
+        await window.electronAPI.adminLogin({
+          username,
+          password
+        });
+      } catch (error) {
+        console.error(error);
+        alert('Login failed');
+
+        // remove loading spinner for login button
+        loginButton.innerHTML = `
+          <i class="fa-solid fa-user"></i>
+          <p>Login</p>
+        `;
+        return;
+      }
+
+      // add class hidden to auth screen
+      authScreen.classList.add('hidden');
+      mainScreen.classList.remove('hidden');
+      mainScreen.classList.add('flex');
+
+      main();
+    });
+
+
+
+    async function main() {
+      const statusSelect = document.getElementById('status-select');
+      const statusValue = statusSelect.value;
+
+      const accounts = await window.electronAPI.getAccounts(statusValue);
+      const statuses = await window.electronAPI.getStatuses();
+
+      accountTable.innerHTML = '';
+
+      accounts.forEach((account, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>
+            <div>
+              <p>${account.account}</p>
+              <p>${account.proxy.ip}:${account.proxy.port}</p>
+            </div>
+          </td>
+          <td id="status-${account._id}">
+            ${statuses[account._id] || 'Ready'}
+          </td>
+          <td>
+            <div class="flex gap-2 max-w-[400px] flex-wrap">
+              <button class="text-sm bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="open-btn-${account._id}">
+                <i class="fa-solid fa-globe"></i>
+                Open browser
+              </button>
+              
+              <button class="text-sm bg-yellow-500 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="save-cookies-btn-${account._id}">
+                <i class="fa-solid fa-cookie-bite"></i>
+                Save cookies
+              </button>
+
+              <button class="text-sm bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="login-btn-${account._id}">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Login and save cookies
+              </button>
+
+              <button class="text-sm bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-medium py-2 px-4 rounded-lg hover:shadow-lg transition duration-300" id="instagram-btn-${account._id}">
+                <i class="fa-brands fa-instagram"></i>
+                Instagram Login
+              </button>
+
+              <button class="text-sm bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="run-btn-${account._id}">
+                <i class="fa-solid fa-play"></i>
+                Run
+              </button>
+
+              <button class="text-sm bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center" id="stop-btn-${account._id}">
+                <i class="fa-solid fa-stop"></i>
+                Stop
+              </button>
+            </div>
+          </td>
+        `;
+        accountTable.appendChild(tr);
+
+        // add event listener to open button
+        const openButton = document.getElementById(`open-btn-${account._id}`);
+        openButton.addEventListener('click', async () => {
+          await window.electronAPI.openNewPage(account);
+        });
+
+        // add event listener to stop button
+        const stopButton = document.getElementById(`stop-btn-${account._id}`);
+        stopButton.addEventListener('click', async () => {
+          await window.electronAPI.stop(account);
+        });
+
+        // add event listener to login button
+        const loginButton = document.getElementById(`login-btn-${account._id}`);
+        loginButton.addEventListener('click', async () => {
+          await window.electronAPI.threadsLogin(account);
+        });
+
+        // add event listener to save cookies button
+        const saveCookiesButton = document.getElementById(`save-cookies-btn-${account._id}`);
+        saveCookiesButton.addEventListener('click', async () => {
+          await window.electronAPI.saveCookies(account);
+        });
+
+        // add event listener to instagram login button
+        const instagramButton = document.getElementById(`instagram-btn-${account._id}`);
+        instagramButton.addEventListener('click', async () => {
+          await window.electronAPI.instagramLogin(account);
+        });
+
+        // add event listener to run button
+        const runButton = document.getElementById(`run-btn-${account._id}`);
+        runButton.addEventListener('click', async () => {
+          await window.electronAPI.run(account);
+        });
+      });
+
+      // run all button
+      const runAllButton = document.getElementById('run-all-btn');
+      runAllButton.addEventListener('click', async () => {
+        for (const account of accounts) {
+          window.electronAPI.run(account);
+          await new Promise((resolve) => {
+            setTimeout(resolve, 2000);
+          });
+        }
+      });
+
+      window.electronAPI.onActionResult(async (account) => {
+        const eventMessage = account.eventMessage;
+        const status = document.getElementById(`status-${account._id}`);
+        if (eventMessage) {
+          status.textContent = eventMessage;
+        }
+        if (account.isNewRound) {
+          await window.electronAPI.run({ ...account, isNewRound: false });
+        }
+      });
+    }
+
+    // on change status select
+    const statusSelect = document.getElementById('status-select');
+    statusSelect.addEventListener('change', () => {
+      main();
+    });
+
+    // relaunch button
+    const relaunchButton = document.getElementById('relaunch-btn');
+    relaunchButton.addEventListener('click', async () => {
+      await window.electronAPI.relaunch();
+    });
+
+    // reload accounts button
+    const reloadAccountsButton = document.getElementById('reload-accounts');
+    reloadAccountsButton.addEventListener('click', async () => {
+      main();
+    });
+  </script>
+
+
+
+</body>
+
+</html>

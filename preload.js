@@ -2,17 +2,15 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Expose a limited API to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
-  getAccounts: (status) => ipcRenderer.invoke('get-accounts', status),
-  adminLogin: (data) => ipcRenderer.invoke('admin-login', data),
-  run: (account) => ipcRenderer.invoke('run', account),
-  stop: (account) => ipcRenderer.invoke('stop', account),
+  getProfiles: () => ipcRenderer.invoke('get-profiles'),
+  run: (userId) => ipcRenderer.invoke('run', userId),
+  openRandomFolder: (path) => ipcRenderer.invoke('open-random-folder', path),
+  copyRandomCaption: () => ipcRenderer.invoke('copy-random-caption'),
+  createEmptyFolder: (path) => ipcRenderer.invoke('create-empty-folder', path),
+  deleteEmptyFolder: (path) => ipcRenderer.invoke('delete-empty-folder', path),
+  openEmptyFolder: (path) => ipcRenderer.invoke('open-empty-folder', path),
+  assignRandomIdToPost: (url) => ipcRenderer.invoke('assign-random-id-to-post', url),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
-  relaunch: () => ipcRenderer.invoke('relaunch'),
-  openNewPage: (account) => ipcRenderer.invoke('open-new-page', account),
-  threadsLogin: (account) => ipcRenderer.invoke('threads-login', account),
-  saveCookies: (account) => ipcRenderer.invoke('save-cookies', account),
-  getStatuses: () => ipcRenderer.invoke('get-statuses'),
-  instagramLogin: (account) => ipcRenderer.invoke('instagram-login', account),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

@@ -14,9 +14,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "ajv": "^8.6.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.7",
     "electron-store": "^10.0.0",
+    "gologin": "^2.1.5",
     "lodash": "^4.17.21",
     "postcss": "^8.4.45",
     "puppeteer": "^23.3.0",
@@ -24,8 +26,7 @@
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "socket.io-client": "^4.7.5",
     "tailwindcss": "^3.4.10",
-    "typescript": "^5.6.2",
-    "ajv": "^8.6.0"
+    "typescript": "^5.6.2"
   },
   "devDependencies": {
     "electron": "^32.0.2",
