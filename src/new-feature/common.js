@@ -5,16 +5,11 @@ import { shell, dialog, app } from 'electron';
 
 export const copyRandomCaption = (event) => {
   const captions = [
-    `🌸 Just a small girl with a big dream and an even bigger smile.`,
-    `✨ Sweet as honey, cute as a bunny.`,
-    `🦋 Smiles are contagious, so here’s one for you!`,
-    `🍑 Sugar, spice, and everything nice—that’s me!`,
-    `🔥 Not perfect, but always myself.`,
-    `🌟 Beauty begins the moment you decide to be yourself.`,
-    `💎 Shine like the whole universe is yours.`,
-    `🌈 No filter, just vibes.`,
-    `💕 You must be tired because you’ve been running through my mind all day.`,
-    `😘 Too glam to give a damn.`,
+    `2006🥵`,
+    `2008🥵`,
+    `snap?`,
+    `insta?`,
+    `Hiii`,
   ];
 
   const randomCaption = captions[Math.floor(Math.random() * captions.length)];

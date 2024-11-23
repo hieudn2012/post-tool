@@ -36,8 +36,8 @@
     "webpack": "^5.94.0"
   },
   "build": {
-    "appId": "SocialFly",
-    "productName": "SocialFly",
+    "appId": "SocialFly_v1.0",
+    "productName": "SocialFly_v1.0",
     "files": [
       "**/*",
       "!**/*.map",
