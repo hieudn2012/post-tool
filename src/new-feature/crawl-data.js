@@ -7,9 +7,15 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const crawlData = async () => {
   const browser = await puppeteer.launch({
     headless: false,
+    // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+
+    // executablePath for windows
+    executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
   });
   const page = await browser.newPage();
-  await page.goto(`https://www.threads.net/@anmabs20`);
+
+  const { threads } = getConfig();
+  await page.goto(threads);
   await page.content();
   await sleep(5000);
 
