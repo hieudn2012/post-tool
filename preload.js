@@ -11,6 +11,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openEmptyFolder: (path) => ipcRenderer.invoke('open-empty-folder', path),
   assignRandomIdToPost: (url) => ipcRenderer.invoke('assign-random-id-to-post', url),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
+  crawlData: () => ipcRenderer.invoke('crawl-data'),
+  openWorkingFolder: () => ipcRenderer.invoke('change-working-folder'),
+  saveConfig: (config) => ipcRenderer.invoke('save-config', config),
+  loadConfig: () => ipcRenderer.invoke('load-config'),
+  changeFolderSaveFiles: () => ipcRenderer.invoke('change-folder-save-files'),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

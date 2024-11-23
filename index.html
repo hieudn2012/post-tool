@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Auto login and post</title>
+  <title>Auto social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
@@ -21,8 +21,15 @@
 <body>
   <div class="flex flex-col justify-between h-[100vh] p-4">
     <div class="flex flex-col gap-2 justify-center items-center text-sm">
-      <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="working-folder"
-        placeholder="Nhập thư mục làm việc">
+      <div class="flex gap-2 mb-5 w-full items-center">
+        <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="working-folder"
+          placeholder="Nhập thư mục làm việc">
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="open-working-folder">
+          <i class="fa-solid fa-folder"></i>
+        </button>
+      </div>
       <button
         class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
         id="open-random-folder-btn">
@@ -69,10 +76,37 @@
         <p>Lấy caption</p>
       </button>
 
+      <div class="my-5 w-full border-b border-gray-200"></div>
+
+      <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="thread-link"
+        placeholder="https://www.threads.net/@anmabs20" />
+      <div class="w-full flex items-center gap-2">
+        <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="folder-save-files"
+          placeholder="Nhập thư mục lưu" />
+        <button
+          class="bg-purple-500 hover:bg-purple-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="change-folder-save-files">
+          <i class="fa-solid fa-folder"></i>
+        </button>
+      </div>
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+        id="crawl-data">
+        <i class="fa-solid fa-folder"></i>
+        <p>Crawl data</p>
+      </button>
+
     </div>
 
     <div>
       <p class="text-center text-sm text-green-500" id="status-message"></p>
+      <div class="flex justify-end">
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="save-config">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
     </div>
   </div>
   <script>
@@ -117,12 +151,58 @@
       await window.electronAPI.assignRandomIdToPost(url);
     });
 
-    window.electronAPI.onActionResult(async ({ eventMessage }) => {
+    // add event listener to crawl data button
+    const crawlDataButton = document.getElementById(`crawl-data`);
+    crawlDataButton.addEventListener('click', async () => {
+      await window.electronAPI.crawlData();
+    });
+
+    // add event listener to open working folder button
+    const openWorkingFolderButton = document.getElementById(`open-working-folder`);
+    openWorkingFolderButton.addEventListener('click', async () => {
+      await window.electronAPI.openWorkingFolder();
+    });
+
+    // add event listener to save config button
+    const saveConfigButton = document.getElementById(`save-config`);
+    saveConfigButton.addEventListener('click', async () => {
+      await window.electronAPI.saveConfig({
+        workingFolder: document.getElementById(`working-folder`).value,
+        postLink: document.getElementById(`post-link`).value,
+        threads: document.getElementById(`thread-link`).value,
+        saveFolder: document.getElementById(`folder-save-files`).value,
+      });
+    });
+
+    // add event listener to change folder save files button
+    const changeFolderSaveFilesButton = document.getElementById(`change-folder-save-files`);
+    changeFolderSaveFilesButton.addEventListener('click', async () => {
+      await window.electronAPI.changeFolderSaveFiles();
+    });
+
+    window.electronAPI.onActionResult(async ({ eventMessage, path, type, ...data }) => {
       const status = document.getElementById(`status-message`);
       if (eventMessage) {
         status.textContent = eventMessage;
       }
+
+      if (type === 'CHANGE_WORKING_FOLDER') {
+        document.getElementById(`working-folder`).value = path;
+      }
+
+      if (type === 'CHANGE_FOLDER_SAVE_FILES') {
+        document.getElementById(`folder-save-files`).value = path;
+      }
+
+      if (type === 'LOAD_CONFIG') {
+        document.getElementById(`working-folder`).value = data.workingFolder;
+        document.getElementById(`post-link`).value = data.postLink;
+        document.getElementById(`thread-link`).value = data.threads;
+        document.getElementById(`folder-save-files`).value = data.saveFolder;
+      }
     });
+
+    window.electronAPI.loadConfig();
   </script>
 </body>
 

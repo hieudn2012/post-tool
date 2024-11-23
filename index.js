@@ -5,18 +5,28 @@ import { fileURLToPath } from 'url';
 import { getProfile } from './src/new-feature/get-profile.js';
 import { run } from './src/new-feature/run.js';
 import { openRandomFolder } from './src/new-feature/open-random-folder.js';
-import { assignRandomIdToPost, copyRandomCaption, createEmptyFolder, deleteEmptyFolder, openEmptyFolder } from './src/new-feature/common.js';
+import {
+  assignRandomIdToPost,
+  changeWorkingFolder,
+  copyRandomCaption,
+  createEmptyFolder,
+  deleteEmptyFolder, loadConfig,
+  openEmptyFolder,
+  saveConfig,
+  sendEvent
+} from './src/new-feature/common.js';
+import { crawlData } from './src/new-feature/crawl-data.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 let mainWindow;
 
-const globalPath = `/Users/admin/Desktop/aaa`;
+let workingFolder = '';
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 300,
+    width: 600,
     height: 800,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
@@ -69,24 +79,47 @@ function createWindow() {
     return assignRandomIdToPost(url, event);
   });
 
-  // Đăng ký tổ hợp phím Ctrl+Shift+C
-  globalShortcut.register('Ctrl+Shift+Z', () => {
-    return openRandomFolder(globalPath);
+  // Crawl data
+  ipcMain.handle('crawl-data', async (event) => {
+    return crawlData(event);
   });
 
-  // Đăng ký tổ hợp phím Ctrl+Shift+X
-  globalShortcut.register('Ctrl+Shift+X', (event) => {
-    return copyRandomCaption(event);
+  // Change working folder
+  ipcMain.handle('change-working-folder', async (event) => {
+    return changeWorkingFolder((path) => {
+      workingFolder = path;
+      sendEvent({
+        event,
+        action: "action-result",
+        eventMessage: `Working folder changed to ${path}`,
+        type: 'CHANGE_WORKING_FOLDER',
+        path
+      });
+    });
   });
 
-  // Đăng ký tổ hợp phím Ctrl+Shift+V
-  globalShortcut.register('Ctrl+Shift+V', () => {
-    return createEmptyFolder(globalPath);
+  // Change folder save files
+  ipcMain.handle('change-folder-save-files', async (event) => {
+    return changeWorkingFolder((path) => {
+      workingFolder = path;
+      sendEvent({
+        event,
+        action: "action-result",
+        eventMessage: `Folder save files changed to ${path}`,
+        type: 'CHANGE_FOLDER_SAVE_FILES',
+        path
+      });
+    });
   });
 
-  // Đăng ký tổ hợp phím Ctrl+Shift+V
-  globalShortcut.register('Ctrl+Shift+D', () => {
-    return deleteEmptyFolder(globalPath);
+  // Save config
+  ipcMain.handle('save-config', async (event, config) => {
+    return saveConfig(config, event);
+  });
+
+  // Load config
+  ipcMain.handle('load-config', async (event) => {
+    return loadConfig(event);
   });
 }
 
@@ -104,8 +137,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
-app.on('will-quit', () => {
-  // Hủy đăng ký tổ hợp phím khi ứng dụng đóng
-  globalShortcut.unregisterAll();
-});

@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { shell } from 'electron';
+import { shell, dialog, app } from 'electron';
 
 export const copyRandomCaption = (event) => {
   const captions = [
@@ -16,7 +16,7 @@ export const copyRandomCaption = (event) => {
     `💕 You must be tired because you’ve been running through my mind all day.`,
     `😘 Too glam to give a damn.`,
   ];
-  
+
   const randomCaption = captions[Math.floor(Math.random() * captions.length)];
   execSync(`echo "${randomCaption}" | pbcopy`);
   sendEvent({ event, action: "action-result", eventMessage: randomCaption });
@@ -73,3 +73,42 @@ export const assignRandomIdToPost = (url, event) => {
 export const sendEvent = ({ event, action = "action-result", ...props }) => {
   return event.sender.send(action, { ...props });
 }
+
+export const changeWorkingFolder = async (setFolder) => {
+  const folderPath = dialog.showOpenDialogSync({
+    properties: ['openDirectory'],
+  });
+  setFolder(folderPath);
+};
+
+export const loadConfig = (event) => {
+  const configDir = app.getPath('userData');
+  const configFile = path.join(configDir, 'config.json');
+
+  if (!fs.existsSync(configFile)) {
+    fs.writeFileSync(configFile, JSON.stringify({
+      workingFolder: '',
+      postLink: '',
+      threads: '',
+      saveFolder: '',
+    }));
+  } else {
+    const config = fs.readFileSync(configFile, 'utf-8');
+    const parsedConfig = JSON.parse(config);
+    sendEvent({ event, action: "action-result", eventMessage: 'Loaded', ...parsedConfig, type: 'LOAD_CONFIG' });
+  }
+};
+
+export const saveConfig = (config, event) => {
+  const configDir = app.getPath('userData');
+  const configFile = path.join(configDir, 'config.json');
+  fs.writeFileSync(configFile, JSON.stringify(config));
+  sendEvent({ event, action: "action-result", eventMessage: 'Đã lưu' });
+};
+
+export const getConfig = () => {
+  const configDir = app.getPath('userData');
+  const configFile = path.join(configDir, 'config.json');
+  const config = fs.readFileSync(configFile, 'utf-8');
+  return JSON.parse(config);
+};
