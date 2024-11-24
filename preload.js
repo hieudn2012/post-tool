@@ -9,13 +9,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createEmptyFolder: (path) => ipcRenderer.invoke('create-empty-folder', path),
   deleteEmptyFolder: (path) => ipcRenderer.invoke('delete-empty-folder', path),
   openEmptyFolder: (path) => ipcRenderer.invoke('open-empty-folder', path),
-  assignRandomIdToPost: (url) => ipcRenderer.invoke('assign-random-id-to-post', url),
+  assignRandomIdToPost: (data) => ipcRenderer.invoke('assign-random-id-to-post', data),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
   crawlData: () => ipcRenderer.invoke('crawl-data'),
   openWorkingFolder: () => ipcRenderer.invoke('change-working-folder'),
   saveConfig: (config) => ipcRenderer.invoke('save-config', config),
   loadConfig: () => ipcRenderer.invoke('load-config'),
   changeFolderSaveFiles: () => ipcRenderer.invoke('change-folder-save-files'),
+  getRandomComment: (links) => ipcRenderer.invoke('get-comment', links),
 });
 
 window.addEventListener('DOMContentLoaded', () => {

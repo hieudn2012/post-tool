@@ -57,12 +57,18 @@ export const openEmptyFolder = (dirPath) => {
   }
 };
 
-export const assignRandomIdToPost = (url, event) => {
-  const postId = Math.random().toString(36).substring(2, 22);
-  const newUrl = `${url}/?${postId}`;
+export const assignRandomIdToPost = ({ url, total }, event) => {
+
+  const urls = [];
+  for (let i = 0; i < total; i++) {
+    const postId = Math.random().toString(36).substring(2, 22);
+    urls.push(`${url}/?${postId}`);
+  }
+  const newUrl = urls.join('\n');
+
   // copy to clipboard
   execSync(`echo "${newUrl}" | pbcopy`);
-  sendEvent({ event, action: "action-result", eventMessage: newUrl });
+  sendEvent({ event, action: "action-result", eventMessage: `Đã tạo ${total} links` });
 };
 
 export const sendEvent = ({ event, action = "action-result", ...props }) => {
@@ -76,6 +82,18 @@ export const changeWorkingFolder = async (setFolder) => {
   setFolder(folderPath);
 };
 
+export const getRandomComment = (links, event) => {
+  const commentTemplate = `${getConfig().commentTemplate}`;
+  
+  const list = links.split('\n');
+  const firstLink = list[0];
+  const newLinks = list.slice(1).join('\n');
+
+  const comment = commentTemplate.replace(`{{value}}`, firstLink);
+  execSync(`echo "${comment}" | pbcopy`);
+  sendEvent({ event, action: "action-result", eventMessage: comment, type: 'CHANGE_LINKS', links: newLinks });
+};
+
 export const loadConfig = (event) => {
   const configDir = app.getPath('userData');
   const configFile = path.join(configDir, 'config.json');
@@ -86,6 +104,8 @@ export const loadConfig = (event) => {
       postLink: '',
       threads: '',
       saveFolder: '',
+      commentTemplate: '',
+      links: '',
     }));
   } else {
     const config = fs.readFileSync(configFile, 'utf-8');

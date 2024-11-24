@@ -5,12 +5,11 @@ import { getConfig } from './common.js';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const crawlData = async () => {
+  const flatform = process.platform;
+
   const browser = await puppeteer.launch({
     headless: false,
-    executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-
-    // executablePath for windows
-    // executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    executablePath: flatform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : 'C:/Program Files/Google/Chrome/Application/chrome.exe',
   });
   const page = await browser.newPage();
 

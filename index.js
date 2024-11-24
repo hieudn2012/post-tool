@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -10,7 +10,7 @@ import {
   changeWorkingFolder,
   copyRandomCaption,
   createEmptyFolder,
-  deleteEmptyFolder, loadConfig,
+  deleteEmptyFolder, getRandomComment, loadConfig,
   openEmptyFolder,
   saveConfig,
   sendEvent
@@ -75,8 +75,13 @@ function createWindow() {
   });
 
   // Assign random id to post
-  ipcMain.handle('assign-random-id-to-post', async (event, url) => {
-    return assignRandomIdToPost(url, event);
+  ipcMain.handle('assign-random-id-to-post', async (event, data) => {
+    return assignRandomIdToPost(data, event);
+  });
+
+  // Get comment
+  ipcMain.handle('get-comment', async (event, links) => {
+    return getRandomComment(links, event);
   });
 
   // Crawl data

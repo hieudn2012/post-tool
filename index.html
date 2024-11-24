@@ -60,8 +60,12 @@
 
       <div class="my-5 w-full border-b border-gray-200"></div>
 
-      <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="post-link"
-        placeholder="Nhập Link bài viết" />
+      <div class="w-full flex gap-2">
+        <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="post-link"
+          placeholder="Nhập Link bài viết" />
+        <input type="text" class="border border-gray-300 rounded-lg p-2 w-[80px] mb-1" id="total-post"
+          placeholder="Nhập số lượng" type="number" />
+      </div>
       <button
         class="bg-purple-500 hover:bg-purple-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
         id="assign-random-id-to-post">
@@ -75,6 +79,20 @@
         <i class="fa-solid fa-copy"></i>
         <p>Lấy caption</p>
       </button>
+
+      <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="comment-template"
+        placeholder="Nhập comment mẫu"></textarea>
+
+      <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="list-links"
+        placeholder="Danh sách links"></textarea>
+
+      <button
+        class="bg-green-500 hover:bg-green-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+        id="get-random-comment">
+        <i class="fa-solid fa-copy"></i>
+        <p>Lấy comment</p>
+      </button>
+
 
       <div class="my-5 w-full border-b border-gray-200"></div>
 
@@ -148,7 +166,8 @@
     const assignRandomIdButton = document.getElementById(`assign-random-id-to-post`);
     assignRandomIdButton.addEventListener('click', async () => {
       const url = document.getElementById(`post-link`).value;
-      await window.electronAPI.assignRandomIdToPost(url);
+      const total = document.getElementById(`total-post`).value || 0;
+      await window.electronAPI.assignRandomIdToPost({ url, total: Number(total) });
     });
 
     // add event listener to crawl data button
@@ -171,6 +190,8 @@
         postLink: document.getElementById(`post-link`).value,
         threads: document.getElementById(`thread-link`).value,
         saveFolder: document.getElementById(`folder-save-files`).value,
+        links: document.getElementById(`list-links`).value,
+        commentTemplate: document.getElementById(`comment-template`).value,
       });
     });
 
@@ -180,8 +201,17 @@
       await window.electronAPI.changeFolderSaveFiles();
     });
 
+    // add event listener to get random comment button
+    const getRandomCommentButton = document.getElementById(`get-random-comment`);
+    getRandomCommentButton.addEventListener('click', async () => {
+      const links = document.getElementById(`list-links`).value;
+      await window.electronAPI.getRandomComment(links);
+    });
+
+
     window.electronAPI.onActionResult(async ({ eventMessage, path, type, ...data }) => {
       const status = document.getElementById(`status-message`);
+
       if (eventMessage) {
         status.textContent = eventMessage;
       }
@@ -199,6 +229,12 @@
         document.getElementById(`post-link`).value = data.postLink;
         document.getElementById(`thread-link`).value = data.threads;
         document.getElementById(`folder-save-files`).value = data.saveFolder;
+        document.getElementById(`list-links`).value = data.links;
+        document.getElementById(`comment-template`).value = data.commentTemplate;
+      }
+
+      if (type === 'CHANGE_LINKS') {
+        document.getElementById(`list-links`).value = data.links;
       }
     });
 
