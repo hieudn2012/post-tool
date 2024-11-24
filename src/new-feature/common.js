@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { shell, dialog, app } from 'electron';
+import clipboard from 'clipboardy';
 
 export const copyRandomCaption = (event) => {
   const captions = [
@@ -13,7 +14,7 @@ export const copyRandomCaption = (event) => {
   ];
 
   const randomCaption = captions[Math.floor(Math.random() * captions.length)];
-  execSync(`echo "${randomCaption}" | pbcopy`);
+  clipboard.writeSync(randomCaption);
   sendEvent({ event, action: "action-result", eventMessage: randomCaption });
 };
 
@@ -67,7 +68,7 @@ export const assignRandomIdToPost = ({ url, total }, event) => {
   const newUrl = urls.join('\n');
 
   // copy to clipboard
-  execSync(`echo "${newUrl}" | pbcopy`);
+  clipboard.writeSync(newUrl);
   sendEvent({ event, action: "action-result", eventMessage: `Đã tạo ${total} links` });
 };
 
@@ -90,7 +91,7 @@ export const getRandomComment = (links, event) => {
   const newLinks = list.slice(1).join('\n');
 
   const comment = commentTemplate.replace(`{{value}}`, firstLink);
-  execSync(`echo "${comment}" | pbcopy`);
+  clipboard.writeSync(comment);
   sendEvent({ event, action: "action-result", eventMessage: comment, type: 'CHANGE_LINKS', links: newLinks });
 };
 

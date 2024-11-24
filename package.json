@@ -17,6 +17,7 @@
     "ajv": "^8.6.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.7",
+    "clipboardy": "^4.0.0",
     "electron-store": "^10.0.0",
     "gologin": "^2.1.5",
     "lodash": "^4.17.21",
