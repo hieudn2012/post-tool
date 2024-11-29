@@ -27,7 +27,7 @@ let workingFolder = '';
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 600,
-    height: 800,
+    height: 1100,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
     }

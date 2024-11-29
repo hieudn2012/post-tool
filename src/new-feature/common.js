@@ -5,14 +5,7 @@ import { shell, dialog, app } from 'electron';
 import clipboard from 'clipboardy';
 
 export const copyRandomCaption = (event) => {
-  const captions = [
-    `2006🥵`,
-    `2008🥵`,
-    `snap?`,
-    `insta?`,
-    `Hiii`,
-  ];
-
+  const captions = getConfig().captions.trim().split('\n');
   const randomCaption = captions[Math.floor(Math.random() * captions.length)];
   clipboard.writeSync(randomCaption);
   sendEvent({ event, action: "action-result", eventMessage: randomCaption });
@@ -107,6 +100,7 @@ export const loadConfig = (event) => {
       saveFolder: '',
       commentTemplate: '',
       links: '',
+      captions: '',
     }));
   } else {
     const config = fs.readFileSync(configFile, 'utf-8');

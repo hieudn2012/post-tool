@@ -73,11 +73,13 @@
         <p>Gáng ID cho bài viết</p>
       </button>
 
+      <textarea type="text" class="border border-gray-300 rounded-lg p-2 w-full h-24" id="list-captions"
+        placeholder="Nhập danh sách captions"></textarea>
       <button
         class="bg-green-500 hover:bg-green-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
         id="open-random-caption">
         <i class="fa-solid fa-copy"></i>
-        <p>Lấy caption</p>
+        <p>Lấy caption ngẫu nhiên</p>
       </button>
 
       <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="comment-template"
@@ -116,7 +118,7 @@
 
     </div>
 
-    <div>
+    <div class="pt-5">
       <p class="text-center text-sm text-green-500" id="status-message"></p>
       <div class="flex justify-end">
         <button
@@ -192,6 +194,7 @@
         saveFolder: document.getElementById(`folder-save-files`).value,
         links: document.getElementById(`list-links`).value,
         commentTemplate: document.getElementById(`comment-template`).value,
+        captions: document.getElementById(`list-captions`).value,
       });
     });
 
@@ -207,7 +210,6 @@
       const links = document.getElementById(`list-links`).value;
       await window.electronAPI.getRandomComment(links);
     });
-
 
     window.electronAPI.onActionResult(async ({ eventMessage, path, type, ...data }) => {
       const status = document.getElementById(`status-message`);
@@ -225,12 +227,13 @@
       }
 
       if (type === 'LOAD_CONFIG') {
-        document.getElementById(`working-folder`).value = data.workingFolder;
-        document.getElementById(`post-link`).value = data.postLink;
-        document.getElementById(`thread-link`).value = data.threads;
-        document.getElementById(`folder-save-files`).value = data.saveFolder;
-        document.getElementById(`list-links`).value = data.links;
-        document.getElementById(`comment-template`).value = data.commentTemplate;
+        document.getElementById(`working-folder`).value = data.workingFolder || '';
+        document.getElementById(`post-link`).value = data.postLink || '';
+        document.getElementById(`thread-link`).value = data.threads || '';
+        document.getElementById(`folder-save-files`).value = data.saveFolder || '';
+        document.getElementById(`list-links`).value = data.links || '';
+        document.getElementById(`comment-template`).value = data.commentTemplate || '';
+        document.getElementById(`list-captions`).value = data.captions || '';
       }
 
       if (type === 'CHANGE_LINKS') {
