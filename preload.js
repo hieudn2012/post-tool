@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
   crawlData: () => ipcRenderer.invoke('crawl-data'),
   openWorkingFolder: () => ipcRenderer.invoke('change-working-folder'),
+  openWorkingCommentFolder: () => ipcRenderer.invoke('change-working-comment-folder'),
   saveConfig: (config) => ipcRenderer.invoke('save-config', config),
   loadConfig: () => ipcRenderer.invoke('load-config'),
   changeFolderSaveFiles: () => ipcRenderer.invoke('change-folder-save-files'),

@@ -69,11 +69,13 @@ export const sendEvent = ({ event, action = "action-result", ...props }) => {
   return event.sender.send(action, { ...props });
 }
 
-export const changeWorkingFolder = async (setFolder) => {
+export const changeWorkingFolder = async (variable, event) => {
   const folderPath = dialog.showOpenDialogSync({
     properties: ['openDirectory'],
   });
-  setFolder(folderPath);
+  const config = getConfig();
+  saveConfig({ ...config, [variable]: folderPath }, event);
+  loadConfig(event);
 };
 
 export const getRandomComment = (links, event) => {
@@ -95,6 +97,7 @@ export const loadConfig = (event) => {
   if (!fs.existsSync(configFile)) {
     fs.writeFileSync(configFile, JSON.stringify({
       workingFolder: '',
+      commentFolder: '',
       postLink: '',
       threads: '',
       saveFolder: '',

@@ -20,101 +20,145 @@
 
 <body>
   <div class="flex flex-col justify-between h-[100vh] p-4">
-    <div class="flex flex-col gap-2 justify-center items-center text-sm">
-      <div class="flex gap-2 mb-5 w-full items-center">
-        <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="working-folder"
-          placeholder="Nhập thư mục làm việc">
+
+    <div class="grid grid-cols-2 gap-2 text-sm">
+      <div class="flex flex-col gap-2 justify-center items-center">
+        <div class="flex gap-2 mb-5 w-full items-center">
+          <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="working-folder"
+            placeholder="Nhập thư mục làm việc">
+          <button
+            class="bg-blue-500 hover:bg-blue-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+            id="open-working-folder">
+            <i class="fa-solid fa-folder"></i>
+          </button>
+        </div>
         <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-          id="open-working-folder">
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="open-random-folder-btn">
           <i class="fa-solid fa-folder"></i>
+          <p>Mở thư mục ngẫu nhiên</p>
+        </button>
+
+        <button
+          class="bg-yellow-500 hover:bg-yellow-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="create-empty-folder">
+          <i class="fa-solid fa-folder-plus"></i>
+          <p>Tạo thư mục rỗng</p>
+        </button>
+
+        <button
+          class="bg-red-500 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="delete-empty-folder">
+          <i class="fa-solid fa-folder-minus"></i>
+          <p>Xoá tất cả thư mục rỗng</p>
+        </button>
+
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="open-empty-folder">
+          <i class="fa-solid fa-folder-minus"></i>
+          <p>Mở thư mục rỗng</p>
+        </button>
+
+        <div class="my-5 w-full border-b border-gray-200"></div>
+
+        <div class="w-full flex gap-2">
+          <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="post-link"
+            placeholder="Nhập Link bài viết" />
+          <input type="text" class="border border-gray-300 rounded-lg p-2 w-[80px] mb-1" id="total-post"
+            placeholder="Nhập số lượng" type="number" />
+        </div>
+        <button
+          class="bg-purple-500 hover:bg-purple-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="assign-random-id-to-post">
+          <i class="fa-solid fa-folder-minus"></i>
+          <p>Gáng ID cho bài viết</p>
+        </button>
+
+        <textarea type="text" class="border border-gray-300 rounded-lg p-2 w-full h-24" id="list-captions"
+          placeholder="Nhập danh sách captions"></textarea>
+        <button
+          class="bg-green-500 hover:bg-green-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="open-random-caption">
+          <i class="fa-solid fa-copy"></i>
+          <p>Lấy caption ngẫu nhiên</p>
+        </button>
+
+        <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="comment-template"
+          placeholder="Nhập comment mẫu"></textarea>
+
+        <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="list-links"
+          placeholder="Danh sách links"></textarea>
+
+        <button
+          class="bg-green-500 hover:bg-green-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="get-random-comment">
+          <i class="fa-solid fa-copy"></i>
+          <p>Lấy comment</p>
+        </button>
+
+
+        <div class="my-5 w-full border-b border-gray-200"></div>
+
+        <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="thread-link"
+          placeholder="https://www.threads.net/@anmabs20" />
+        <div class="w-full flex items-center gap-2">
+          <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="folder-save-files"
+            placeholder="Nhập thư mục lưu" />
+          <button
+            class="bg-purple-500 hover:bg-purple-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+            id="change-folder-save-files">
+            <i class="fa-solid fa-folder"></i>
+          </button>
+        </div>
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+          id="crawl-data">
+          <i class="fa-solid fa-folder"></i>
+          <p>Crawl data</p>
         </button>
       </div>
-      <button
-        class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="open-random-folder-btn">
-        <i class="fa-solid fa-folder"></i>
-        <p>Mở thư mục ngẫu nhiên</p>
-      </button>
 
-      <button
-        class="bg-yellow-500 hover:bg-yellow-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="create-empty-folder">
-        <i class="fa-solid fa-folder-plus"></i>
-        <p>Tạo thư mục rỗng</p>
-      </button>
+      <div>
+        <div class="flex flex-col justify-center items-center gap-2">
+          <div class="flex gap-2 mb-5 w-full items-center">
+            <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="comment-folder"
+              placeholder="Nhập thư mục lưu ảnh/video comment">
+            <button
+              class="bg-blue-500 hover:bg-blue-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+              id="open-working-comment-folder">
+              <i class="fa-solid fa-folder"></i>
+            </button>
+          </div>
+          <button
+            class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+            id="open-random-comment-folder-btn">
+            <i class="fa-solid fa-folder"></i>
+            <p>Mở thư mục ngẫu nhiên</p>
+          </button>
 
-      <button
-        class="bg-red-500 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="delete-empty-folder">
-        <i class="fa-solid fa-folder-minus"></i>
-        <p>Xoá tất cả thư mục rỗng</p>
-      </button>
+          <button
+            class="bg-yellow-500 hover:bg-yellow-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+            id="create-empty-comment-folder">
+            <i class="fa-solid fa-folder-plus"></i>
+            <p>Tạo thư mục rỗng</p>
+          </button>
 
-      <button
-        class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="open-empty-folder">
-        <i class="fa-solid fa-folder-minus"></i>
-        <p>Mở thư mục rỗng</p>
-      </button>
+          <button
+            class="bg-red-500 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+            id="delete-empty-comment-folder">
+            <i class="fa-solid fa-folder-minus"></i>
+            <p>Xoá tất cả thư mục rỗng</p>
+          </button>
 
-      <div class="my-5 w-full border-b border-gray-200"></div>
-
-      <div class="w-full flex gap-2">
-        <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="post-link"
-          placeholder="Nhập Link bài viết" />
-        <input type="text" class="border border-gray-300 rounded-lg p-2 w-[80px] mb-1" id="total-post"
-          placeholder="Nhập số lượng" type="number" />
+          <button
+            class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
+            id="open-empty-comment-folder">
+            <i class="fa-solid fa-folder-minus"></i>
+            <p>Mở thư mục rỗng</p>
+          </button>
+        </div>
       </div>
-      <button
-        class="bg-purple-500 hover:bg-purple-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="assign-random-id-to-post">
-        <i class="fa-solid fa-folder-minus"></i>
-        <p>Gáng ID cho bài viết</p>
-      </button>
-
-      <textarea type="text" class="border border-gray-300 rounded-lg p-2 w-full h-24" id="list-captions"
-        placeholder="Nhập danh sách captions"></textarea>
-      <button
-        class="bg-green-500 hover:bg-green-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="open-random-caption">
-        <i class="fa-solid fa-copy"></i>
-        <p>Lấy caption ngẫu nhiên</p>
-      </button>
-
-      <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="comment-template"
-        placeholder="Nhập comment mẫu"></textarea>
-
-      <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="list-links"
-        placeholder="Danh sách links"></textarea>
-
-      <button
-        class="bg-green-500 hover:bg-green-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="get-random-comment">
-        <i class="fa-solid fa-copy"></i>
-        <p>Lấy comment</p>
-      </button>
-
-
-      <div class="my-5 w-full border-b border-gray-200"></div>
-
-      <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="thread-link"
-        placeholder="https://www.threads.net/@anmabs20" />
-      <div class="w-full flex items-center gap-2">
-        <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="folder-save-files"
-          placeholder="Nhập thư mục lưu" />
-        <button
-          class="bg-purple-500 hover:bg-purple-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-          id="change-folder-save-files">
-          <i class="fa-solid fa-folder"></i>
-        </button>
-      </div>
-      <button
-        class="bg-blue-500 hover:bg-blue-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-        id="crawl-data">
-        <i class="fa-solid fa-folder"></i>
-        <p>Crawl data</p>
-      </button>
 
     </div>
 
@@ -184,6 +228,13 @@
       await window.electronAPI.openWorkingFolder();
     });
 
+    // add event listener to open working comment folder button
+    const openWorkingCommentFolderButton = document.getElementById(`open-working-comment-folder`);
+    openWorkingCommentFolderButton.addEventListener('click', async () => {
+      await window.electronAPI.openWorkingCommentFolder();
+    });
+
+
     // add event listener to save config button
     const saveConfigButton = document.getElementById(`save-config`);
     saveConfigButton.addEventListener('click', async () => {
@@ -195,6 +246,7 @@
         links: document.getElementById(`list-links`).value,
         commentTemplate: document.getElementById(`comment-template`).value,
         captions: document.getElementById(`list-captions`).value,
+        commentFolder: document.getElementById(`comment-folder`).value,
       });
     });
 
@@ -209,6 +261,34 @@
     getRandomCommentButton.addEventListener('click', async () => {
       const links = document.getElementById(`list-links`).value;
       await window.electronAPI.getRandomComment(links);
+    });
+
+    // add event listener to open random comment folder button
+    const openRandomCommentFolderButton = document.getElementById(`open-random-comment-folder-btn`);
+    openRandomCommentFolderButton.addEventListener('click', async () => {
+      const folderPath = document.getElementById(`comment-folder`).value;
+      await window.electronAPI.openRandomFolder(folderPath);
+    });
+
+    // add event listener to create empty comment folder button
+    const createEmptyCommentFolderButton = document.getElementById(`create-empty-comment-folder`);
+    createEmptyCommentFolderButton.addEventListener('click', async () => {
+      const folderPath = document.getElementById(`comment-folder`).value;
+      await window.electronAPI.createEmptyFolder(folderPath);
+    });
+
+    // add event listener to delete empty comment folder button
+    const deleteEmptyCommentFolderButton = document.getElementById(`delete-empty-comment-folder`);
+    deleteEmptyCommentFolderButton.addEventListener('click', async () => {
+      const folderPath = document.getElementById(`comment-folder`).value;
+      await window.electronAPI.deleteEmptyFolder(folderPath);
+    });
+
+    // add event listener to open empty comment folder button
+    const openEmptyCommentFolderButton = document.getElementById(`open-empty-comment-folder`);
+    openEmptyCommentFolderButton.addEventListener('click', async () => {
+      const folderPath = document.getElementById(`comment-folder`).value;
+      await window.electronAPI.openEmptyFolder(folderPath);
     });
 
     window.electronAPI.onActionResult(async ({ eventMessage, path, type, ...data }) => {
@@ -228,6 +308,7 @@
 
       if (type === 'LOAD_CONFIG') {
         document.getElementById(`working-folder`).value = data.workingFolder || '';
+        document.getElementById(`comment-folder`).value = data.commentFolder || '';
         document.getElementById(`post-link`).value = data.postLink || '';
         document.getElementById(`thread-link`).value = data.threads || '';
         document.getElementById(`folder-save-files`).value = data.saveFolder || '';

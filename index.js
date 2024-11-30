@@ -26,7 +26,7 @@ let workingFolder = '';
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 600,
+    width: 1100,
     height: 1100,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
@@ -91,16 +91,12 @@ function createWindow() {
 
   // Change working folder
   ipcMain.handle('change-working-folder', async (event) => {
-    return changeWorkingFolder((path) => {
-      workingFolder = path;
-      sendEvent({
-        event,
-        action: "action-result",
-        eventMessage: `Working folder changed to ${path}`,
-        type: 'CHANGE_WORKING_FOLDER',
-        path
-      });
-    });
+    return changeWorkingFolder('workingFolder', event);
+  });
+
+  // Change working folder
+  ipcMain.handle('change-working-comment-folder', async (event) => {
+    return changeWorkingFolder('commentFolder', event);
   });
 
   // Change folder save files
