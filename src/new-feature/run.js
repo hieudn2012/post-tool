@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import GoLogin from 'gologin';
 import fs from 'node:fs';
 import { getConfig } from './common.js';

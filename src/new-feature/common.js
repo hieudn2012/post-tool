@@ -80,7 +80,7 @@ export const changeWorkingFolder = async (variable, event) => {
 
 export const getRandomComment = (links, event) => {
   const commentTemplate = `${getConfig().commentTemplate}`;
-  
+
   const list = links.split('\n');
   const firstLink = list[0];
   const newLinks = list.slice(1).join('\n');
