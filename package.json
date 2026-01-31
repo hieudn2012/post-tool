@@ -21,6 +21,7 @@
     "electron-store": "^10.0.0",
     "gologin": "^2.1.5",
     "lodash": "^4.17.21",
+    "moment": "^2.30.1",
     "postcss": "^8.4.45",
     "puppeteer": "^23.3.0",
     "puppeteer-extra": "^3.3.6",
@@ -37,8 +38,8 @@
     "webpack": "^5.94.0"
   },
   "build": {
-    "appId": "SocialFly_v1.0",
-    "productName": "SocialFly_v1.0",
+    "appId": "SocialFly_v1.1",
+    "productName": "SocialFly_v1.1",
     "files": [
       "**/*",
       "!**/*.map",

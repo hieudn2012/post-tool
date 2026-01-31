@@ -51,7 +51,7 @@ function createWindow() {
 
   // open random folder
   ipcMain.handle('open-random-folder', async (event, path) => {
-    return openRandomFolder(path);
+    return openRandomFolder(path, event);
   });
 
   // copy random caption
