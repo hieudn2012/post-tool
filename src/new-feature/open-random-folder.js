@@ -1,21 +1,35 @@
 import { shell } from 'electron';
-import moment from 'moment';
 import fs from 'node:fs';
+import { addTxtHistory, getTxtHistory, sendEvent } from './common.js';
 
 export const openRandomFolder = async (parentPath, event) => {
+  const history = getTxtHistory();
   // get child folders
   // filler without hidden folders
   const childFolders = fs.readdirSync(parentPath).filter((folder) => {
-    return !folder.startsWith('.') && !folder.includes('--')
+    return !folder.startsWith('.') && !history.includes(`${parentPath}/${folder}`)
   });
 
   // get random
   const randomFolder = childFolders[Math.floor(Math.random() * childFolders.length)];
+
+  if (!randomFolder) {
+    return;
+  }
+
+  if (childFolders.length > 0) {
+    sendEvent({
+      event,
+      action: "action-result",
+      eventMessage: `Tổng folder còn lại: ${childFolders.length - 1}`,
+      type: 'TOTAL_FOLDER_NOT_YET_OPEN'
+    });
+  }
+
   const finalPath = `${parentPath}/${randomFolder}`;
 
-  // rename folder with new name = finalPath - new Date()
-  const currentDate = moment().format('MMMM Do YYYY, h-mm-ss a');
-  const renamed = `${finalPath} -- ${currentDate}`;
-  fs.renameSync(finalPath, renamed);
-  shell.openPath(renamed);
+  // add to history
+  addTxtHistory(finalPath);
+
+  shell.openPath(finalPath);
 };

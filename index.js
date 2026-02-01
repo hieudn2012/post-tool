@@ -6,7 +6,6 @@ import { getProfile } from './src/new-feature/get-profile.js';
 import { run } from './src/new-feature/run.js';
 import { openRandomFolder } from './src/new-feature/open-random-folder.js';
 import {
-  assignRandomIdToPost,
   changeWorkingFolder,
   copyRandomCaption,
   createEmptyFolder,
@@ -72,11 +71,6 @@ function createWindow() {
   // Open empty folder
   ipcMain.handle('open-empty-folder', async (event, path) => {
     return openEmptyFolder(path);
-  });
-
-  // Assign random id to post
-  ipcMain.handle('assign-random-id-to-post', async (event, data) => {
-    return assignRandomIdToPost(data, event);
   });
 
   // Get comment

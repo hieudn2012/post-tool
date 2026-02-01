@@ -9,7 +9,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createEmptyFolder: (path) => ipcRenderer.invoke('create-empty-folder', path),
   deleteEmptyFolder: (path) => ipcRenderer.invoke('delete-empty-folder', path),
   openEmptyFolder: (path) => ipcRenderer.invoke('open-empty-folder', path),
-  assignRandomIdToPost: (data) => ipcRenderer.invoke('assign-random-id-to-post', data),
   onActionResult: (callback) => ipcRenderer.on('action-result', (event, result) => callback(result)),
   crawlData: () => ipcRenderer.invoke('crawl-data'),
   openWorkingFolder: () => ipcRenderer.invoke('change-working-folder'),

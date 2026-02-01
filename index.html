@@ -60,60 +60,11 @@
           <p>Mở thư mục rỗng</p>
         </button>
 
-        <div class="my-5 w-full border-b border-gray-200"></div>
-        <div>Thư mục đang mở</div>
-        <div id="folder-list"></div>
-        <div class="my-5 w-full border-b border-gray-200"></div>
-
-        <div class="w-full flex gap-2">
-          <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="post-link"
-            placeholder="Nhập Link bài viết" />
-          <input type="text" class="border border-gray-300 rounded-lg p-2 w-[80px] mb-1" id="total-post"
-            placeholder="Nhập số lượng" type="number" />
-        </div>
-        <button
-          class="bg-purple-500 hover:bg-purple-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-          id="assign-random-id-to-post">
-          <i class="fa-solid fa-folder-minus"></i>
-          <p>Gáng ID cho bài viết</p>
-        </button>
-
-        <textarea type="text" class="border border-gray-300 rounded-lg p-2 w-full h-24" id="list-captions"
-          placeholder="Nhập danh sách captions"></textarea>
-        <button
-          class="bg-green-500 hover:bg-green-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-          id="open-random-caption">
-          <i class="fa-solid fa-copy"></i>
-          <p>Lấy caption ngẫu nhiên</p>
-        </button>
-
-        <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="comment-template"
-          placeholder="Nhập comment mẫu"></textarea>
-
-        <textarea class="border border-gray-300 rounded-lg p-2 w-full h-24" id="list-links"
-          placeholder="Danh sách links"></textarea>
-
-        <button
-          class="bg-green-500 hover:bg-green-700 text-white font-medium py-1 px-4 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-          id="get-random-comment">
-          <i class="fa-solid fa-copy"></i>
-          <p>Lấy comment</p>
-        </button>
 
 
-        <div class="my-5 w-full border-b border-gray-200"></div>
 
-        <input type="text" class="border border-gray-300 rounded-lg p-2 w-full mb-1" id="thread-link"
-          placeholder="https://www.threads.net/@anmabs20" />
-        <div class="w-full flex items-center gap-2">
-          <input type="text" class="border border-gray-300 rounded-lg p-2 w-full" id="folder-save-files"
-            placeholder="Nhập thư mục lưu" />
-          <button
-            class="bg-purple-500 hover:bg-purple-700 text-white font-medium p-2 rounded-lg items-center gap-2 flex-shrink-0 flex justify-center"
-            id="change-folder-save-files">
-            <i class="fa-solid fa-folder"></i>
-          </button>
-        </div>
+
+
       </div>
     </div>
 
@@ -139,12 +90,6 @@
       await window.electronAPI.openRandomFolder(folderPath);
     });
 
-    // add event listener to copy button
-    const openRandomCaptionButton = document.getElementById(`open-random-caption`);
-    openRandomCaptionButton.addEventListener('click', async () => {
-      await window.electronAPI.copyRandomCaption();
-    });
-
     // add event listener to create empty folder button
     const createEmptyFolderButton = document.getElementById(`create-empty-folder`);
     createEmptyFolderButton.addEventListener('click', async () => {
@@ -166,14 +111,6 @@
       await window.electronAPI.openEmptyFolder(folderPath);
     });
 
-    // add event listener to assign random id button
-    const assignRandomIdButton = document.getElementById(`assign-random-id-to-post`);
-    assignRandomIdButton.addEventListener('click', async () => {
-      const url = document.getElementById(`post-link`).value;
-      const total = document.getElementById(`total-post`).value || 0;
-      await window.electronAPI.assignRandomIdToPost({ url, total: Number(total) });
-    });
-
     // add event listener to open working folder button
     const openWorkingFolderButton = document.getElementById(`open-working-folder`);
     openWorkingFolderButton.addEventListener('click', async () => {
@@ -192,19 +129,6 @@
         commentTemplate: document.getElementById(`comment-template`).value,
         captions: document.getElementById(`list-captions`).value,
       });
-    });
-
-    // add event listener to change folder save files button
-    const changeFolderSaveFilesButton = document.getElementById(`change-folder-save-files`);
-    changeFolderSaveFilesButton.addEventListener('click', async () => {
-      await window.electronAPI.changeFolderSaveFiles();
-    });
-
-    // add event listener to get random comment button
-    const getRandomCommentButton = document.getElementById(`get-random-comment`);
-    getRandomCommentButton.addEventListener('click', async () => {
-      const links = document.getElementById(`list-links`).value;
-      await window.electronAPI.getRandomComment(links);
     });
 
     window.electronAPI.onActionResult(async ({ eventMessage, path, type, ...data }) => {
@@ -230,6 +154,10 @@
         document.getElementById(`list-links`).value = data.links || '';
         document.getElementById(`comment-template`).value = data.commentTemplate || '';
         document.getElementById(`list-captions`).value = data.captions || '';
+      }
+
+      if (type === 'TOTAL_FOLDER_NOT_YET_OPEN') {
+        status.textContent = eventMessage;
       }
 
       if (type === 'CHANGE_LINKS') {

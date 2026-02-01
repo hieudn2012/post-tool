@@ -125,3 +125,28 @@ export const getConfig = () => {
   const config = fs.readFileSync(configFile, 'utf-8');
   return JSON.parse(config);
 };
+
+// txt history
+export const getTxtHistory = () => {
+  const configDir = app.getPath('userData');
+  const configFile = path.join(configDir, 'history.txt');
+  if (!fs.existsSync(configFile)) {
+    fs.writeFileSync(configFile, '');
+  }
+  const history = fs.readFileSync(configFile, 'utf-8');
+  return history.split('\n');
+};
+
+// add 1 line to txt history
+export const addTxtHistory = (line) => {
+  const configDir = app.getPath('userData');
+  const configFile = path.join(configDir, 'history.txt');
+  fs.appendFileSync(configFile, `${line}\n`);
+};
+
+// clear txt history
+export const clearTxtHistory = () => {
+  const configDir = app.getPath('userData');
+  const configFile = path.join(configDir, 'history.txt');
+  fs.writeFileSync(configFile, '');
+};
